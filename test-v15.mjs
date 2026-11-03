@@ -1,0 +1,10 @@
+import {Game} from './src/engine.js';
+import {makeCard} from './src/cards.js';
+import assert from 'node:assert/strict';
+const g=new Game();
+for(const p of [1,2])assert.equal(g.players[p].deck.length+g.players[p].hand.length,64);
+const stance=makeCard('stance',1);g.players[1].hand.push(stance);let actions=g.me.actions;assert(g.playStance(stance.id));assert.equal(g.me.actions,actions);assert(g.players[1].vault.includes(stance));
+const ammo=makeCard('ammo',1);g.players[1].hand.push(ammo);g.consume(1,ammo);assert(!g.players[1].hand.includes(ammo));assert(g.players[1].discard.includes(ammo));
+const attacker=makeCard('joe',1),defender=makeCard('splice',2);attacker.pos={c:2,r:2};defender.pos={c:2,r:3};g.units=[attacker,defender];const stance2=makeCard('stance',2);g.players[2].hand.push(stance2);g.duel(attacker,defender,'position',{old:{...attacker.pos},dest:{...defender.pos}});assert(g.pendingDefense);assert(g.pendingDefense.available.includes(stance2.id));g.toggleDefenseCard(stance2.id);g.resolveDefense();assert(g.players[2].vault.includes(stance2));assert(!g.players[2].hand.includes(stance2));assert(!g.players[2].discard.includes(stance2));assert.equal(attacker.pos.r,2);
+const g2=new Game();for(let i=0;i<8;i++){const c=makeCard('stance',1);g2.players[1].hand.push(c);g2.playStance(c.id)}assert.equal(g2.winner,1);assert.equal(g2.phase,'finished');assert(!g2.playStance(makeCard('stance',1).id));
+console.log('V1.5 tests passed: deck size, free stance score, Ammo discard, stance duel defense/score, win lock.');

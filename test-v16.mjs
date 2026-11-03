@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {Game} from './src/engine.js';
+import {makeDeck,drawWeighted,DRAW_WEIGHTS} from './src/cards.js';
+assert.equal(makeDeck(1).length,64);
+assert.equal(DRAW_WEIGHTS.stance,1);
+let deck=makeDeck(1), before=deck.length;
+const chosen=drawWeighted(deck,()=>0);
+assert.equal(chosen.kind,'joe');assert.equal(deck.length,before-1);
+let game=new Game();assert.equal(game.players[1].hand.length,5);assert.equal(game.players[2].hand.length,5);
+assert.equal(game.drawEvents.length,10);
+game.drawEvents.length=0;
+assert.equal(game.draw(1),true);assert.equal(game.players[1].actions,2);assert.equal(game.drawEvents.length,1);
+assert.equal(game.draw(1),true);assert.equal(game.draw(1),true);assert.equal(game.draw(1),false);
+assert.equal(game.players[1].actions,0);
+game.endTurn();assert.equal(game.active,2);assert.equal(game.drawEvents.at(-1).player,2);
+console.log('V1.6 weighted draw and turn draw tests passed');

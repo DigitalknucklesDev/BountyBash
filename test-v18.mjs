@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {Game} from './src/engine.js';
+import {catalog} from './src/cards.js';
+assert.equal(catalog.joe.defense,1);
+assert.equal(catalog.splice.defense,1);
+const g=new Game();
+assert.equal(g.me.actions,3);
+for(let i=0;i<3;i++) assert.equal(g.draw(1),true,`paid draw ${i+1}`);
+assert.equal(g.me.actions,0);
+assert.equal(g.draw(1),false,'fourth paid draw disallowed by actions');
+g.endTurn();
+assert.equal(g.active,2);
+assert.equal(g.drawnThisTurn,1);
+for(let i=0;i<3;i++)assert.equal(g.draw(2),true);
+assert.equal(g.drawnThisTurn,4);
+assert.equal(g.me.actions,0);
+assert.equal(g.draw(2),false);
+console.log('V1.8 draw economy and printed defense tests passed');
