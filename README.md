@@ -1,3 +1,16 @@
+# Scraplords: Bounty Bash V2.0 — Combined-Action Multiplier (CAM)
+
+## CAM Duel for Position
+- Moving into an enemy-occupied tile costs **1 Move action** and starts a Duel for Position.
+- Attacker may choose **0 through all remaining actions** as CAM during the Attack Response overlay. Each committed action adds **+1 Attack** to that duel only.
+- The attacker may also choose any available Ammo cards; selected Ammo bonuses stack with CAM.
+- Projected Attack and actions remaining are shown before commitment.
+- **COMMIT AMMO + CAM** consumes only the selected Ammo and committed actions. **CONTINUE WITHOUT BUFFS** uses base Attack, spending no extra actions or Ammo.
+- The defending player's existing Quick Fix / Victory Stance response follows, using the committed final Attack.
+- CAM applies only to **Duel for Position**, not standard adjacent Attack. The initial Move action is never counted twice.
+- If the attacker has no Ammo and no remaining actions, the duel resolves using the existing base Attack/Defense sequence.
+- Ties favor the attacker, as before. All other V1.9 gameplay is preserved.
+
 # SCRAPLORDS: BOUNTY BASH — V1 PLAYABLE PROTOTYPE
 
 ## Run
@@ -48,3 +61,38 @@ When a Duel for Position challenges a unit whose owner has Quick Fix cards in ha
 
 ## V1.3 — Attacker Ammo → Defender Quick Fix duel sequence
 When a Duel for Position begins, if the attacker holds Ammo, an attack overlay appears first. It displays the attacker's base Attack (including adjacent ally support), the target's current Defense, and the minimum Ammo bonus required to meet Defense. Eligible Ammo cards glow green and can be selected in any quantity. Confirming consumes only selected Ammo, then advances to the existing defender Quick Fix response overlay; passing consumes none. If all held Ammo cannot overcome Defense, the overlay warns INSUFFICIENT AMMO AVAILABLE, but allows a partial buff or passing (a duel can still be attempted). The defending player then selects Quick Fix cards, which must raise Defense strictly above final Attack to block. Both stages are action-free card responses to the single already-paid Move action. All other movement, capture, scoring and end-turn rules remain unchanged. This is a local hot-seat UI; each player's reaction cards are visible while their overlay is open.
+
+
+## V1.5: Victory Stance, visible discards, victory announcement
+- Each 64-card placeholder deck now includes four Victory Stance cards (replacing four Rider placeholders).
+- Select Victory Stance in hand and press **SCORE VICTORY STANCE · FREE** to add it to your own Bounty Vault (1 bounty / 1 point; no action).
+- Victory Stance also appears in the defender's Duel for Position response overlay as +2 Defense. If selected and committed successfully, it moves from hand to its owner's Bounty Vault rather than Scrap Pit, even if the duel ultimately resolves as a hit. Quick Fix moves to Scrap Pit; Ammo moves to Scrap Pit.
+- Each player's Scrap Pit is shown as an overlapping pile of used card images with stable individual rotation. Discard totals still count every card.
+- Reaching eight bounties immediately displays a full-screen victory announcement with restart button. The printed point total is displayed separately; eight bounty cards, not points, triggers victory.
+- If a Victory Stance defense card scores the eighth bounty during a duel, the duel itself finishes resolving before the victory overlay appears.
+
+
+## V1.6: Weighted draws and card dealing animation
+- Weighted random draws sample **without replacement** from the remaining 64-card deck. This is deliberately a prototype rarity model, not an established rulebook probability.
+- Draw weights per remaining card: **Binge-er Joe 10**, **Splice’n Dice 10**, **Ammo 4**, **Quick Fix 4**, **Victory Stance 1**. A card with weight 10 is ten times as likely to be selected as a particular remaining card with weight 1; aggregate category probability also depends on how many of each remain. Every card can eventually be drawn.
+- Weights are editable in `src/cards.js` under `DRAW_WEIGHTS`. Deck composition remains unchanged; no cards are duplicated or created by weighting.
+- A successful manual draw and the automatic beginning-of-turn draw display a card flying from the current player's physical Deck tile to the new hand card, with a small flip and arc. The initial opening five-card deal is instant to avoid a long startup sequence. Animation is skipped for reduced-motion preferences.
+- Drawing checks deck and draw limits before spending an action; at most three paid draws are allowed on a normal turn in addition to its free draw. The first turn retains its previous no-free-draw behavior.
+
+## V1.7 — Duel pass clarification and regression tests
+The defender's **PASS DEFENSE · RESOLVE DUEL** button applies zero additional defense and resolves the committed Attack against the existing Defense. The attacker's Ammo committed in the previous stage remains counted. A tie counts as a hit; the attacker pays exactly one MOVE action for the Duel for Position. The battle log now explicitly records both response decisions. Note: Rider Mascot abilities and allied Team-Attack support are included in the totals shown on screen, and can change the apparent base-card comparison. The attacker-side **CONTINUE WITHOUT AMMO** is distinct: it intentionally declines all Ammo, even if cards were selected.
+
+Run regression tests with `node test-duel.mjs` (Node.js 22 or newer). Tests cover defender pass, attack Ammo, defense response, unsuccessful duels, and action consumption.
+
+
+## V1.8 — Draw actions and base-defense clarification
+- Any remaining action may be spent on DRAW (one card per action), subject to having cards left in the Deck. There is no separate paid-draw limit. With three actions, a normal turn can draw one free card plus up to three paid cards. The initial turn still has no free draw, consistent with the existing prototype.
+- Printed Rider DEF remains **1** in `src/cards.js`. The effective DEF in duels can exceed 1 due to the printed **Mascot** ability: +1 for each other allied Mascot in play. Thus DEF 4 is possible when three other allied Mascots are present. This build preserves that printed ability and the existing Team-Attack rule.
+- Test using `node test-v18.mjs`.
+
+## V1.9 — New common/uncommon Riders and rare Mascots
+- Added supplied art for **Bullet Badger: Bash** (common, ATK 1 / DEF 1, Quip flavor text) and **G.E.N.T. Tech** (uncommon, ATK 1 / DEF 2, Rally: +1 DEF to each orthogonally adjacent allied unit). Both are bounty-icon Riders worth one bounty point.
+- Preserved the Mascot pairing effect for **Binge-er Joe** and **Splice’n Dice**: each gains +1 DEF per *other* active allied Mascot. Non-Mascots no longer incorrectly count as Mascots.
+- Prototype deck remains 64 cards: 6 Joe, 6 Splice, 18 G.E.N.T. Tech, 18 Bullet Badger, 6 Ammo, 6 Quick Fix, 4 Victory Stance.
+- Per-card draw weights: Joe 1 (super rare), Splice 1 (super rare), G.E.N.T. Tech 6 (uncommon), Bullet Badger 10 (common), Ammo 4, Quick Fix 4, Victory Stance 1. Rarity is a playtest designation and not printed on the supplied cards.
+- Rally is interpreted as applying to orthogonally adjacent allied defenders, consistent with current prototype movement/adjacency. G.E.N.T. Tech does not buff itself; multiple adjacent G.E.N.T. Tech cards can each contribute +1 DEF.

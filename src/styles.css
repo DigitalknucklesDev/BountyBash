@@ -9,3 +9,17 @@
 .defense-choice{border:3px solid #39e47b!important;box-shadow:0 0 15px #39e47b77;background:#163d28!important;cursor:pointer}
 .defense-choice.defense-picked{background:#23854b!important;box-shadow:0 0 0 3px #c8ffd8,0 0 25px #39e47b}
 .defense-hint{color:#a9ffc6}.defense-buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.defense-buttons button,.no-defense button{padding:12px 16px;cursor:pointer}.defense-buttons button:disabled{opacity:.4;cursor:not-allowed}.no-defense{border:2px solid #e59b43;padding:16px;border-radius:12px}.no-defense strong{color:#ffd08a}
+
+/* V1.5 visible organic Scrap Pit and victory announcement */
+.scrap-display{background:#11141b;border:1px solid #48424a;border-radius:9px;margin:10px 0;padding:9px;overflow:hidden}.scrap-title{display:flex;justify-content:space-between;font-size:11px;font-weight:900;color:#ffc16b}.scrap-stack{height:112px;position:relative;margin-top:8px;border:1px dashed #57515b;border-radius:7px;background:repeating-linear-gradient(30deg,#1e1d23,#1e1d23 9px,#252329 10px)}.scrap-stack img{position:absolute;left:calc(10% + var(--offset));top:10px;height:88px;width:64px;object-fit:cover;border-radius:4px;border:1px solid #aaa;box-shadow:2px 4px 7px #000b;transform:rotate(var(--tilt));transform-origin:center;transition:transform .2s}.scrap-stack span{color:#999;font-size:11px;position:absolute;top:40px;left:40%}.victory-overlay{position:fixed;inset:0;z-index:2500;background:#07060be8;display:flex;align-items:center;justify-content:center;padding:20px}.victory-dialog{width:min(620px,100%);padding:45px 24px;text-align:center;background:radial-gradient(circle at top,#4e351e,#16161e 70%);border:4px solid #f8b53e;border-radius:24px;box-shadow:0 0 100px #eaa53365}.victory-crown{font-size:28px;font-weight:1000;letter-spacing:5px;color:#ffe092}.victory-dialog h1{font-size:clamp(30px,5vw,56px);color:white;text-shadow:3px 4px #c43d22}.victory-dialog p{color:#ffd89b}.victory-score{padding:20px;color:#ffcf5d;font-size:19px;font-weight:900}.victory-restart{margin-top:20px;background:#e26d29;color:white;border:0;border-radius:8px;padding:17px 30px;font-weight:900}.actions button[data-act="stance"]{grid-column:span 2;background:#385c39;color:#ddffdf;border-color:#68b56d}.hand-card:has(img[src$="stance.png"]){border-color:#72cc78}
+
+/* V1.6: visual deck-to-hand draw, layered over the battlefield and hand. */
+.draw-flying-card{position:fixed;z-index:2100;width:64px;height:88px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 8px 13px #000);border-radius:5px;transform-origin:center;will-change:transform,opacity}
+@media(prefers-reduced-motion:reduce){.draw-flying-card{display:none}}
+
+/* Combined-action multiplier controls */
+.cam-panel{border:1px solid #a8b96d;background:rgba(94,119,46,.16);padding:12px;margin:12px 0;border-radius:10px}
+.cam-panel h3{margin:0 0 8px;color:#d4f5a0}.cam-panel p{margin:7px 0;line-height:1.4}
+.cam-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0}
+.cam-controls button{font-size:22px;min-width:44px;min-height:40px;border:1px solid #9bd766;border-radius:7px;background:#294421;color:#fff;cursor:pointer}
+.cam-controls button:disabled{opacity:.3;cursor:not-allowed}.cam-controls strong{font-size:14px;text-align:center}
