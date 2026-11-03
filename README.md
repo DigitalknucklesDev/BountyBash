@@ -21,3 +21,9 @@ From this folder run `python -m http.server 8000`, then visit `http://localhost:
 
 ## Tests
 Run `node --experimental-default-type=module test-v23.mjs` to test deck composition, Zap Factory Backlot activation and end-turn movement, D.B. Calldown adjacent attack and Scrap Pit consumption, and Zap Factory field deployment.
+
+## V2.3.1 — Field Warden Gate-scoring hotfix
+- Corrects Bounty Plow movement onto an enemy Gate: after capturing an enemy bounty, Field Warden now also scores itself through the normal Gate-scoring mechanism.
+- Field Warden still requires an active RCee Controller source in its current player's field or Backlot to move and use Bounty Plow.
+- Bounty Plow captures an enemy bounty on the destination tile; it does not automatically claim cards in adjacent tiles or the opponent's Backlot.
+- Includes `test-warden-fix.mjs` regression tests.
