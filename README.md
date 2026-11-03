@@ -27,3 +27,9 @@ Run `node --experimental-default-type=module test-v23.mjs` to test deck composit
 - Field Warden still requires an active RCee Controller source in its current player's field or Backlot to move and use Bounty Plow.
 - Bounty Plow captures an enemy bounty on the destination tile; it does not automatically claim cards in adjacent tiles or the opponent's Backlot.
 - Includes `test-warden-fix.mjs` regression tests.
+
+## V2.3.2 — Hand selection and manual discard
+- Click an already selected hand card to deselect it.
+- Click a blank battlefield/hand area or CLEAR SELECTION to deselect.
+- DISCARD SELECTED · FREE moves the selected hand card to its owner's Scrap Pit without consuming an action; no bounty is scored.
+- These interactions are blocked while a duel, Gate claim, or Resource Perk response is pending.
