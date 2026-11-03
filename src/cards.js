@@ -9,7 +9,7 @@ export const catalog={
 };
 // Higher per-card weight = more likely to draw; composition and weights both matter.
 // Mascots are rare/super rare. G.E.N.T. Tech is uncommon; Bullet Badger is common.
-export const DRAW_WEIGHTS=Object.freeze({joe:1,splice:1,gent:6,badger:10,ammo:4,fix:4,stance:1});
+export const DRAW_WEIGHTS=Object.freeze({joe:1,splice:1,gent:2,badger:10,ammo:5,fix:5,stance:1});
 export function drawWeighted(deck,random=Math.random){
  if(!deck.length)return null;
  const weights=deck.map(c=>Math.max(0,DRAW_WEIGHTS[c.kind]??1));
