@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {Game} from './src/engine.js';import {makeCard,makeDeck,catalog} from './src/cards.js';
+const g=new Game();assert.equal(makeDeck(1).length,64);
+for(const kind of ['botsquad','babe','crab','gunrat','katank','tazer','willy','snare'])assert.ok(catalog[kind]);
+g.players[1].hand=[makeCard('gunrat',1)];g.players[1].deck=[makeCard('babe',1),makeCard('snare',1)];g.selected={source:'hand',id:g.players[1].hand[0].id};let a=g.me.actions;assert.equal(g.activateGunRat(g.selected.id),true);assert.equal(g.me.actions,a);assert.equal(g.me.hand.length,2);assert.equal(g.me.discard.length,1);
+const h=new Game();h.units=[];h.players[1].vault.push(makeCard('controller',1));const bot=makeCard('botsquad',1);bot.pos={c:3,r:2};h.units.push(bot);h.selected={source:'board',id:bot.id};h.mode='move';h.me.actions=0;h.move(3,3);assert.deepEqual(bot.pos,{c:3,r:3});h.move(3,4);assert.deepEqual(bot.pos,{c:3,r:4});h.move(3,5);assert.deepEqual(bot.pos,{c:3,r:4});
+const k=new Game();k.units=[];const crab=makeCard('crab',2);crab.pos={c:3,r:3};const warden=makeCard('warden',1);warden.pos={c:3,r:2};k.units.push(crab,warden);k.players[1].vault.push(makeCard('controller',1));k.selected={source:'board',id:warden.id};k.mode='move';k.move(3,3);assert.equal(k.units.includes(crab),true);assert.equal(k.players[1].vault.some(c=>c.id===crab.id),false);assert.deepEqual(warden.pos,{c:3,r:3});
+const q=new Game();q.units=[];const def=makeCard('babe',2);def.pos={c:3,r:3};const cover=makeCard('katank',2);cover.pos={c:4,r:3};const att=makeCard('porko',1);att.pos={c:3,r:2};q.units.push(def,cover,att);q.duel(att,def,'adjacent');assert.deepEqual(cover.pos,{c:3,r:3});assert.deepEqual(def.pos,{c:4,r:3});
+const t=new Game();t.units=[];const willy=makeCard('willy',1);willy.pos={c:3,r:6};t.units.push(willy);let old=t.players[1].hand.length;t.checkGate(willy);assert.equal(t.players[1].hand.length,old+1);assert.equal(t.players[1].vault.some(c=>c.id===willy.id),true);
+console.log('V2.5 new card tests passed');

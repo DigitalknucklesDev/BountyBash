@@ -36,3 +36,19 @@ Run `node --experimental-default-type=module test-v23.mjs` to test deck composit
 
 ## V2.4 NPC mode (code-only update)
 Replace `index.html` and `src/` in the existing V2.3.2 GitHub Pages repository; keep the existing `assets/` folder. A new `src/ai.js` implements local rule-based NPCs. Choose Human vs Human, Human vs Computer (P2), or Computer vs Computer in Command Center. Changing mode restarts the match. Difficulty adjusts move selection randomness. This is a first-pass heuristic AI, not a trained model; browser playtesting is recommended, especially around special cards and pending interactions. All AI decisions run locally.
+
+## V2.5 — Eight new cards
+
+New Riders: Bot Squad, Binge’er Babe, Crab Cannon, Gun Rat, Katank, Steel Tooth Willy, Snare Bear. New Ultimate: Space Tazer (+3 Attack). All eight have original supplied PNG artwork in the separate V2.5 artwork package.
+
+The decks remain 64 cards each by replacing eight copies of existing Rider cards; all new cards appear once per deck with weighted draws. Snare Bear is rare.
+
+**Implemented provisional timing rules:**
+- Bot Squad gets two action-free orthogonal moves per turn while the player controls an RCee source; remaining normal moves still cost actions.
+- Crab Cannon automatically Swerves to an unoccupied legal adjacent tile when a controlled Field Warden would Bounty Plow it. If none exists, normal capture proceeds. No separate player choice overlay yet.
+- Gun Rat has a new GUN RAT · DISCARD & DRAW 2 button when selected in hand. The action is free, draws up to two cards and puts Gun Rat in Scrap Pit. Ordinary DISCARD SELECTED does not activate this ability.
+- Katank and existing Steel Yeti Heavy Cover automatically intercept an adjacent ally's attack by swapping positions. If multiple protectors exist, the first in the field list is used; no choice overlay yet.
+- Steel Tooth Willy draws one card when scoring itself on an opposing Gate (including Gate score following a position duel). The ordinary Gate bounty claim remains intact.
+- Space Tazer is an Ultimate and works in the existing Attack/CAM overlay. Snare Bear uses the existing Mascot defense logic.
+
+To install: merge V2.5 code ZIP and V2.5 artwork ZIP into the existing site root, keeping your older assets. Do not delete the old assets folder. Keep the existing GitHub Pages workflow unchanged.

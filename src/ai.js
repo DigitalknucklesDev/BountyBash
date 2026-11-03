@@ -19,6 +19,7 @@ function actionOptions(g,difficulty){
   for(const e of enemies.filter(e=>distance(u.pos,e.pos)===1))options.push({kind:'attack',unit:u,t:e.pos,score:u.attack>=e.defense?7:1});
  }
  for(const card of me.hand){
+  if((card.tags||[]).includes('gunrat-draw')&&me.deck.length>=2&&me.hand.length<4)options.push({kind:'gunrat',card,score:10});
   if(card.type==='stance'&&me.vault.length<8)options.push({kind:'stance',card,score:12});
   if(['item','perk'].includes(card.type)&&me.vault.length<8)options.push({kind:'item',card,score:(card.tags||[]).includes('rcee-source')?12:(card.tags||[]).includes('zap-factory')?11:5});
   if(['rider','perk'].includes(card.type))for(let c=2;c<=5;c++){
@@ -41,11 +42,12 @@ export function aiStep(g,difficulty='normal'){
  const pick=choose(options,o=>o.score,difficulty);
  if(!pick){g.endTurn();return true}
  const before=g.me.actions;
- if(pick.kind==='draw')g.draw(g.active);
+ if(pick.kind==='gunrat')g.activateGunRat(pick.card.id);
+ else if(pick.kind==='draw')g.draw(g.active);
  else if(pick.kind==='item')g.playItem(pick.card.id);
  else if(pick.kind==='stance')g.playStance(pick.card.id);
  else if(pick.kind==='deploy'){g.selectHand(pick.card.id);g.deploy(pick.t.c,pick.t.r)}
  else {g.selectUnit(pick.unit.id);if(pick.kind==='attack')g.attack(pick.t.c,pick.t.r);else g.move(pick.t.c,pick.t.r)}
- if(g.me.actions===before&&!g.pendingAttack&&!g.pendingDefense&&!g.pendingGateClaim&&pick.kind!=='stance'){g.endTurn()}
+ if(g.me.actions===before&&!g.pendingAttack&&!g.pendingDefense&&!g.pendingGateClaim&&pick.kind!=='stance'&&pick.kind!=='gunrat'){g.endTurn()}
  return true;
 }
