@@ -23,3 +23,5 @@
 .cam-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0}
 .cam-controls button{font-size:22px;min-width:44px;min-height:40px;border:1px solid #9bd766;border-radius:7px;background:#294421;color:#fff;cursor:pointer}
 .cam-controls button:disabled{opacity:.3;cursor:not-allowed}.cam-controls strong{font-size:14px;text-align:center}
+
+#game-mode,#ai-difficulty{width:100%;padding:9px;margin:5px 0 12px;background:#171b21;color:#fff;border:1px solid #6e777f;border-radius:5px;}
