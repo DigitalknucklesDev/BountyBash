@@ -1,4 +1,4 @@
-# Scraplords: Bounty Bash V2.3 — Resource Perks and Ultimates
+# Scraplords: Bounty Bash V2.4 — Resource Perks and Ultimates
 
 ## Added cards
 - **Zap Factory** — Resource Perk, 1 bounty / point, provisional draw weight 2, one copy per 64-card deck. Activate into your Backlot for one action to enable a once-per-own-turn, end-of-turn free movement of one allied active unit by one orthogonally adjacent, unoccupied legal tile. An overlay allows selecting an eligible unit, choosing a tile, or skipping. This movement can score normally upon entering an opposing Gate. Perk is effective while the Zap Factory card is in the owner's current Backlot, and transfers with the card if claimed.
