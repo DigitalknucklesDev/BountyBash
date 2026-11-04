@@ -7,3 +7,9 @@ Scraplords V2.8.1 — Animated launch menu. Includes V2.8 source, three new spla
 - Menu supports Single Match or Best of 3. Best of 3 shows a round-result overlay after each match, with Next Round; final series victory overlay appears only when a player has 2 wins.
 - Main Menu and Exit / Close controls require confirmation. Browser security generally prevents JavaScript from closing tabs opened by the user, so an exit screen explains how to close the tab manually.
 - Existing gameplay and card assets unchanged.
+
+## V2.8.3: Draw directly from gameboard decks
+- Click/tap P1 deck H4 on P1's turn or P2 deck A3 on P2's turn to use the same `g.draw(active)` action as DRAW in the command center.
+- Each manual draw costs one action, uses the existing weighted draw, updates the hand/deck counter, and triggers the existing draw animation and session persistence.
+- Opponent deck clicks do not draw. Empty decks, no actions, completed games, and unresolved combat/selection overlays cannot spend a draw action.
+- Deck card backs retain P2's 180-degree orientation. Discard tiles A4/H3 and existing controls are unchanged.
