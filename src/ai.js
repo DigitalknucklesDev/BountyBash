@@ -3,7 +3,7 @@ import {distance,tileType,gateOwner} from './rules.js';
 const rand=xs=>xs[Math.floor(Math.random()*xs.length)];
 const choose=(xs,score,difficulty)=>{if(!xs.length)return null;if(difficulty==='easy'&&Math.random()<.55)return rand(xs);return xs.map(x=>({x,s:score(x)+(difficulty==='hard'?Math.random()*.15:Math.random()*2)})).sort((a,b)=>b.s-a.s)[0].x};
 const enemyGate=(u)=>u.owner===1?6:1;
-function actionOptions(g,difficulty){
+export function actionOptions(g,difficulty){
  const p=g.active,me=g.me,units=g.units.filter(u=>u.owner===p&&!u.ko&&g.canOperate(u));
  const options=[];
  const enemies=g.units.filter(u=>u.owner!==p&&!u.ko);
@@ -42,12 +42,17 @@ export function aiStep(g,difficulty='normal'){
  const pick=choose(options,o=>o.score,difficulty);
  if(!pick){g.endTurn();return true}
  const before=g.me.actions;
+ executeOption(g,pick);
+ if(g.me.actions===before&&!g.pendingAttack&&!g.pendingDefense&&!g.pendingGateClaim&&pick.kind!=='stance'&&pick.kind!=='gunrat'){g.endTurn()}
+ return true;
+}
+export function executeOption(g,pick){
+ const before=g.me.actions,turn=g.turn;
  if(pick.kind==='gunrat')g.activateGunRat(pick.card.id);
  else if(pick.kind==='draw')g.draw(g.active);
  else if(pick.kind==='item')g.playItem(pick.card.id);
  else if(pick.kind==='stance')g.playStance(pick.card.id);
  else if(pick.kind==='deploy'){g.selectHand(pick.card.id);g.deploy(pick.t.c,pick.t.r)}
  else {g.selectUnit(pick.unit.id);if(pick.kind==='attack')g.attack(pick.t.c,pick.t.r);else g.move(pick.t.c,pick.t.r)}
- if(g.me.actions===before&&!g.pendingAttack&&!g.pendingDefense&&!g.pendingGateClaim&&pick.kind!=='stance'&&pick.kind!=='gunrat'){g.endTurn()}
- return true;
+ return g.me.actions!==before||g.turn!==turn||!!g.pendingAttack||!!g.pendingDefense||!!g.pendingGateClaim||pick.kind==='stance'||pick.kind==='gunrat';
 }

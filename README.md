@@ -53,8 +53,16 @@ The decks remain 64 cards each by replacing eight copies of existing Rider cards
 
 To install: merge V2.5 code ZIP and V2.5 artwork ZIP into the existing site root, keeping your older assets. Do not delete the old assets folder. Keep the existing GitHub Pages workflow unchanged.
 
-## V2.6 — Edition cap and cinematic hand
+## V2.7 — Edition cap and cinematic hand
 - Deck construction now enforces a hard maximum of four copies of each card kind.
 - G.E.N.T. Tech reduced from five to four copies; Bullet Badger increased from three to four, retaining 64 cards per player.
 - Hand is now a fixed bottom-screen fan. Hover or tap the hand header to expand; tap a card to select and collapse the hand for board placement. Swipe horizontally to navigate large hands on touchscreens.
 - Existing card actions and NPC modes are unchanged.
+
+## V2.7 Monte Carlo tactical NPC
+- Hard mode scores up to 8 candidate actions with 8 sampled hidden-information rollouts per action, looking ahead up to 5 NPC steps. Easy and Normal retain faster priority-based decision logic.
+- A sampled copy of the game is used for simulations; the real board is changed only by the selected legal action.
+- Opponent hidden hand/deck are reshuffled in each simulated world. This is a lightweight Monte Carlo rollout planner, not full MCTS.
+- NPC tactical feed shows chosen action, simulation count, and recent decisions; intended destination is highlighted on the board. Animations honor reduced-motion preference.
+- Keep all existing assets; code-only update. No API or server required.
+- Caveat: this is a prototype and full browser QA is recommended. It does not guarantee perfect opponent modeling or optimal play.

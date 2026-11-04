@@ -41,3 +41,15 @@ body{padding-bottom:108px}
 .hand-area:not(.expanded) .hand-card.chosen{border-color:#ffce71;filter:brightness(1.2)}
 @media(max-width:760px){body{padding-bottom:92px}.hand-area{height:96px;padding:0 8px 6px}.hand-area.expanded{height:min(350px,68dvh)}.hand-card{flex-basis:clamp(75px,21vw,105px);margin-left:-19px}.hand-hint{display:none}.hand-meta{gap:5px;font-size:9px}.hand{justify-content:flex-start;padding-inline:18px}.hand-area.expanded .hand-card:hover{transform:translateY(0) rotate(calc(var(--fan) * 2deg));filter:brightness(1)}}
 @media(prefers-reduced-motion:reduce){.hand-area,.hand-card{transition:none}}
+
+/* V2.7 — cinematic NPC planning feed and intent markers. */
+.npc-feed{border:1px solid #a66b31;background:linear-gradient(145deg,#32261c,#141821 75%);border-radius:12px;padding:12px;box-shadow:inset 0 0 22px #fba83c13,0 8px 24px #0006;min-height:106px}
+.npc-feed-head{display:flex;align-items:center;gap:9px;color:#ffc16e;font-size:10px;letter-spacing:1px}
+.npc-pulse{width:9px;height:9px;border-radius:50%;background:#ffb14e;box-shadow:0 0 13px #ff8c31;animation:npcBeat 1.4s ease-in-out infinite}
+@keyframes npcBeat{50%{opacity:.35;transform:scale(.7)}}
+.npc-current{font-size:12px;font-weight:700;line-height:1.5;color:#fff0d9;animation:npcSlide .35s ease-out}
+.npc-history{font-size:10px;color:#a7a4a6;border-top:1px solid #ffffff14;padding-top:7px}
+@keyframes npcSlide{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.tile.npc-target{outline:3px solid #4be5ef;outline-offset:-3px;z-index:5;animation:npcTile 1s ease-in-out infinite alternate}
+@keyframes npcTile{to{box-shadow:inset 0 0 28px #37e8ff99;background:#35d5f833}}
+@media(prefers-reduced-motion:reduce){.npc-pulse,.npc-current,.tile.npc-target{animation:none}}
