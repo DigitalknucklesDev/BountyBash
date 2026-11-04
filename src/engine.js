@@ -103,13 +103,12 @@ export class Game {
   const twinsRelay=this.units.filter(u=>u.owner===def.owner&&u.id!==def.id&&!u.ko&&distance(u.pos,def.pos)===1&&(u.tags||[]).includes('twins')&&this.units.some(k=>k.owner===def.owner&&!k.ko&&(k.tags||[]).includes('repair-relay-2')&&distance(k.pos,u.pos)===1)).length;
   const baseDefense=def.defense+mascotBonus+rallyBonus+gateDefenseBonus+chirpBonus+stanceBonus+twinsRelay;
   const ammo=this.players[att.owner].hand.filter(c=>c.type==='ammo'||c.type==='ultimate');
-  if((kind==='position'&&(ammo.length||this.players[att.owner].actions>0))||(kind==='adjacent'&&ammo.length)){
-   const needed=Math.max(0,baseDefense-baseAttack);
-   this.pendingAttack={attId:att.id,defId:def.id,kind,moveContext,baseAttack,baseDefense,needed,camActions:0,maxCamActions:kind==='position'?this.players[att.owner].actions:0,available:ammo.map(c=>c.id),chosen:[],canBoost:ammo.reduce((n,c)=>n+c.attack,0)+(kind==='position'?this.players[att.owner].actions:0)>=needed};
-   this.message(`Player ${att.owner}: choose Ammo / Ultimates and/or commit remaining actions as CAM (+1 ATK each).`);
-   return;
-  }
-  this.beginDefense(att,def,kind,baseAttack,baseDefense,moveContext);
+  // Every combat begins with an attacker response, including adjacent attacks
+  // with no Ammo. Never resolve an attack before the response windows open.
+  const needed=Math.max(0,baseDefense-baseAttack);
+  this.pendingAttack={attId:att.id,defId:def.id,kind,moveContext,baseAttack,baseDefense,needed,camActions:0,maxCamActions:kind==='position'?this.players[att.owner].actions:0,available:ammo.map(c=>c.id),chosen:[],canBoost:ammo.reduce((n,c)=>n+c.attack,0)+(kind==='position'?this.players[att.owner].actions:0)>=needed};
+  this.message(`Player ${att.owner}: attack response — select Ammo / Ultimates or continue without buffs.`);
+
  }
  setCamActions(count){
   const p=this.pendingAttack;if(!p)return false;
@@ -141,7 +140,7 @@ export class Game {
  beginDefense(att,def,kind,atk,defense,moveContext=null){
   const required=Math.max(0,atk-defense+1); // Defense must EXCEED attack; ties are hits.
   const fixes=this.players[def.owner].hand.filter(c=>c.type==='fix'||c.type==='stance');
-  if(kind==='position'&&fixes.length){
+  if(kind==='position'||kind==='adjacent'){
    this.pendingDefense={attId:att.id,defId:def.id,kind,moveContext,atk,baseDefense:defense,required,available:fixes.map(c=>c.id),chosen:[],canDefend:fixes.reduce((n,c)=>n+c.defense,0)>=required};
    this.message(`Player ${def.owner}: Defense response requested (+${required} defense needed).`);
    return;

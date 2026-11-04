@@ -54,25 +54,20 @@ body{padding-bottom:108px}
 @keyframes npcTile{to{box-shadow:inset 0 0 28px #37e8ff99;background:#35d5f833}}
 @media(prefers-reduced-motion:reduce){.npc-pulse,.npc-current,.tile.npc-target{animation:none}}
 
-/* Combat overlays above cinematic hand */
+/* V2.7.1: Combat and mandatory response dialogs always outrank the cinematic hand. */
 .gate-overlay,
 .gate-overlay.defense-overlay,
 .defense-overlay {
   z-index: 4000;
 }
-
-.victory-overlay {
-  z-index: 5000;
-}
-
-/* Temporarily hide hand during modal interactions */
+.victory-overlay { z-index: 5000; }
+/* Hide the bottom fan while a modal is active so Apply/Pass remain unobstructed. */
 #app:has(.gate-overlay) .hand-area,
 #app:has(.victory-overlay) .hand-area {
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
 }
-
 @media (max-width: 760px) {
   .gate-overlay { padding: 12px; }
   .gate-dialog { max-height: 92dvh; }
