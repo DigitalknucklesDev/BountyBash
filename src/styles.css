@@ -72,3 +72,69 @@ body{padding-bottom:108px}
   .gate-overlay { padding: 12px; }
   .gate-dialog { max-height: 92dvh; }
 }
+
+/* V2.7.7 — invisible cinematic hand dock; preserve fan and controls. */
+.hand-area,
+.hand-area.expanded {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.hand-head {
+  background: transparent;
+  box-shadow: none;
+}
+/* Only the actual cards and controls are visually presented. */
+.hand { background: transparent; }
+
+/* V2.7.8 — frosted hand dock and unclipped card fan. CSS-only. */
+.hand-area,
+.hand-area.expanded {
+  background: rgba(17, 20, 29, .24);
+  -webkit-backdrop-filter: blur(7px) saturate(1.12);
+  backdrop-filter: blur(7px) saturate(1.12);
+  border: 1px solid rgba(242, 190, 115, .12);
+  border-bottom: 0;
+  box-shadow: 0 -5px 22px rgba(0,0,0,.10);
+  overflow: visible;
+}
+/* Collapsed cards may peek beyond the top edge without being cropped. */
+.hand-area:not(.expanded) .hand {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 168px;
+  overflow: visible;
+  pointer-events: none;
+  padding-top: 12px;
+}
+.hand-area:not(.expanded) .hand-card { pointer-events: auto; }
+/* Keep the controls clickable and above the overlapping cards. */
+.hand-head { position: relative; z-index: 1001; }
+/* In the expanded state, reserve clearance for the raised/zoomed card. */
+.hand-area.expanded { height: min(490px, 80dvh); }
+.hand-area.expanded .hand {
+  position: relative;
+  height: calc(100% - 43px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-top: 52px;
+  padding-bottom: 8px;
+}
+@media (max-width:760px) {
+  .hand-area.expanded { height: min(410px, 75dvh); }
+  .hand-area:not(.expanded) .hand { height: 154px; }
+}
+
+/* V2.7.9: in-board deck and organic Scrap Pit piles. Utilities remain non-playable. */
+.tile.utility{isolation:isolate}
+.tile-scrap-pile,.tile-deck-stack{position:absolute;inset:3%;pointer-events:none;z-index:1;filter:drop-shadow(0 2px 3px #000b)}
+.tile-scrap-pile img{position:absolute;left:11%;top:7%;width:73%;height:82%;object-fit:fill;border-radius:4px;box-shadow:0 1px 3px #000c;transform:translate(calc(var(--pile-index)*2%),calc(var(--pile-index)*-1%)) rotate(var(--pile-tilt));transform-origin:50% 50%}
+.tile-scrap-pile.tile-p2 img{transform:translate(calc(var(--pile-index)*-2%),calc(var(--pile-index)*1%)) rotate(calc(180deg + var(--pile-tilt)))}
+.tile-deck-stack:before,.tile-deck-stack:after{content:"";position:absolute;left:13%;top:12%;width:75%;height:79%;border-radius:4px;background:#353039;border:1px solid #b3a6a1;transform:translate(3px,3px)}
+.tile-deck-stack:after{transform:translate(1px,1px)}
+.tile-deck-stack img{position:absolute;left:11%;top:8%;width:75%;height:80%;object-fit:fill;border-radius:4px;border:1px solid #e6c68a;z-index:1;box-shadow:0 3px 6px #000b}
+.tile-deck-stack.tile-p2 img{transform:rotate(180deg)}
+.tile-pile-count{position:absolute;right:0;bottom:0;z-index:3;min-width:17px;padding:1px 3px;border-radius:6px;background:#13131bea;border:1px solid #e8ae62;color:#ffe4a5;text-align:center;font-size:clamp(8px,.85vw,12px);font-weight:900;line-height:1.25}
+.tile.utility .tile-name{z-index:4;pointer-events:none;text-shadow:0 1px 3px #000,0 0 3px #000}
