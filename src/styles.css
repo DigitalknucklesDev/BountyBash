@@ -25,3 +25,19 @@
 .cam-controls button:disabled{opacity:.3;cursor:not-allowed}.cam-controls strong{font-size:14px;text-align:center}
 
 #game-mode,#ai-difficulty{width:100%;padding:9px;margin:5px 0 12px;background:#171b21;color:#fff;border:1px solid #6e777f;border-radius:5px;}
+
+/* V2.6: cinematic bottom-docked fan hand, desktop hover and touch tap/scroll. */
+body{padding-bottom:108px}
+.hand-area{position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:1800;width:min(960px,calc(100vw - 16px));height:112px;padding:0 14px 8px;border:1px solid #ad6d38;border-bottom:0;border-radius:24px 24px 0 0;background:linear-gradient(180deg,#24222beF,#0e1019f9);box-shadow:0 -10px 42px #000b,0 -2px 25px #e9892830;overflow:hidden;transition:height .32s cubic-bezier(.2,.8,.2,1),box-shadow .3s;isolation:isolate}
+.hand-area.expanded{height:min(440px,72dvh);box-shadow:0 -16px 75px #000e,0 -2px 35px #e9892855}
+.hand-head{height:43px;position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(180deg,#25222d,#201e27);border-radius:0 0 10px 10px}
+.hand-toggle,.hand-close{border:0;background:transparent;color:#ffce88;font-size:12px;font-weight:900;letter-spacing:1px;padding:10px;cursor:pointer}
+.hand-toggle{flex:1;text-align:left}.hand-hint{font-size:9px;color:#aaa;margin-left:8px}.hand-meta{display:flex;align-items:center;gap:10px;font-size:10px;color:#d6c5b6}.hand-close{font-size:23px;line-height:1}
+.hand{height:calc(100% - 43px);min-height:0;display:flex;align-items:flex-end;justify-content:center;gap:0;overflow-x:auto;overflow-y:hidden;padding:6px 12px 0;scrollbar-width:thin;scrollbar-color:#ae783c #17141c;touch-action:pan-x;overscroll-behavior-x:contain}
+.hand-card{position:relative;flex:0 0 clamp(72px,10.5vw,112px);min-width:0;padding:3px;border:2px solid #675242;border-radius:10px 10px 5px 5px;background:#191923;box-shadow:-9px 0 17px #000a;transform-origin:50% 115%;transform:translateY(56px) rotate(calc(var(--fan) * 4deg));margin-left:clamp(-36px,-3.8vw,-14px);transition:transform .32s cubic-bezier(.18,.8,.25,1),filter .2s,border-color .2s,box-shadow .2s;z-index:calc(100 + var(--i));filter:brightness(.86);will-change:transform}
+.hand-card:first-child{margin-left:0}.hand-card img{width:100%;aspect-ratio:600/825;object-fit:cover;border-radius:6px;display:block;pointer-events:none}.hand-card span{display:block;font-size:10px;padding:3px 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hand-area.expanded .hand-card{transform:translateY(0) rotate(calc(var(--fan) * 2deg));filter:brightness(1)}
+.hand-area.expanded .hand-card:hover,.hand-area.expanded .hand-card:focus-visible,.hand-area.expanded .hand-card.chosen{transform:translateY(-22px) rotate(0deg) scale(1.14);border-color:#ffd35f;box-shadow:0 0 0 2px #ffd35f77,0 16px 38px #000c;filter:brightness(1.15);z-index:900;outline:none}
+.hand-area:not(.expanded) .hand-card.chosen{border-color:#ffce71;filter:brightness(1.2)}
+@media(max-width:760px){body{padding-bottom:92px}.hand-area{height:96px;padding:0 8px 6px}.hand-area.expanded{height:min(350px,68dvh)}.hand-card{flex-basis:clamp(75px,21vw,105px);margin-left:-19px}.hand-hint{display:none}.hand-meta{gap:5px;font-size:9px}.hand{justify-content:flex-start;padding-inline:18px}.hand-area.expanded .hand-card:hover{transform:translateY(0) rotate(calc(var(--fan) * 2deg));filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.hand-area,.hand-card{transition:none}}

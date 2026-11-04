@@ -33,7 +33,7 @@ export const catalog={
 };
 // Higher per-card weight = more likely to draw; composition and weights both matter.
 // Mascots are rare/super rare. G.E.N.T. Tech is uncommon; Bullet Badger is common.
-export const DRAW_WEIGHTS=Object.freeze({joe:1,splice:1,punchy:1,gent:4,badger:7,kruger:5,porko:2,guard:4,reff:4,greynor:1,ammo:5,fix:5,stance:1,heap:2,troll:4,chirp:1,yeti:2,twins:3,controller:2,death:5,warden:1,zap:1,calldown:1,botsquad:2,babe:6,crab:3,gunrat:3,katank:2,tazer:2,willy:2,snare:1});
+export const DRAW_WEIGHTS=Object.freeze({joe:1,splice:1,punchy:1,gent:5,badger:10,kruger:8,porko:5,guard:4,reff:3,greynor:2,ammo:4,fix:4,stance:1,heap:2,troll:5,chirp:2,yeti:2,twins:3,controller:3,death:5,warden:2,zap:2,calldown:2,botsquad:2,babe:6,crab:3,gunrat:4,katank:2,tazer:2,willy:2,snare:1});
 export function drawWeighted(deck,random=Math.random){
  if(!deck.length)return null;
  const weights=deck.map(c=>Math.max(0,DRAW_WEIGHTS[c.kind]??1));
@@ -45,5 +45,5 @@ export function drawWeighted(deck,random=Math.random){
 }
 let id=0;
 export function makeCard(kind,owner){return {...catalog[kind],kind,owner,id:`card-${++id}`,ko:false,hp:1,maxHp:1};}
-export function makeDeck(owner){const counts={joe:3,splice:4,punchy:4,gent:5,badger:3,kruger:4,porko:3,guard:3,reff:2,greynor:2,ammo:3,fix:3,stance:2,heap:2,troll:2,chirp:1,yeti:1,twins:2,controller:2,death:2,warden:1,zap:1,calldown:1,botsquad:1,babe:1,crab:1,gunrat:1,katank:1,tazer:1,willy:1,snare:1};return Object.entries(counts).flatMap(([kind,n])=>Array.from({length:n},()=>makeCard(kind,owner)))}
+export function makeDeck(owner){const counts={joe:3,splice:4,punchy:4,gent:4,badger:4,kruger:4,porko:3,guard:3,reff:2,greynor:2,ammo:3,fix:3,stance:2,heap:2,troll:2,chirp:1,yeti:1,twins:2,controller:2,death:2,warden:1,zap:1,calldown:1,botsquad:1,babe:1,crab:1,gunrat:1,katank:1,tazer:1,willy:1,snare:1};if(Object.values(counts).some(n=>n>4))throw new Error("Edition limit exceeded: max 4 copies per card");return Object.entries(counts).flatMap(([kind,n])=>Array.from({length:n},()=>makeCard(kind,owner)))}
 export function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr}

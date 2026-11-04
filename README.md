@@ -52,3 +52,9 @@ The decks remain 64 cards each by replacing eight copies of existing Rider cards
 - Space Tazer is an Ultimate and works in the existing Attack/CAM overlay. Snare Bear uses the existing Mascot defense logic.
 
 To install: merge V2.5 code ZIP and V2.5 artwork ZIP into the existing site root, keeping your older assets. Do not delete the old assets folder. Keep the existing GitHub Pages workflow unchanged.
+
+## V2.6 — Edition cap and cinematic hand
+- Deck construction now enforces a hard maximum of four copies of each card kind.
+- G.E.N.T. Tech reduced from five to four copies; Bullet Badger increased from three to four, retaining 64 cards per player.
+- Hand is now a fixed bottom-screen fan. Hover or tap the hand header to expand; tap a card to select and collapse the hand for board placement. Swipe horizontally to navigate large hands on touchscreens.
+- Existing card actions and NPC modes are unchanged.
