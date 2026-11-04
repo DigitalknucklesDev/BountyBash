@@ -1,15 +1,11 @@
-Scraplords V2.7.2 — Adjacent Combat Response Fix
+# Scraplords Bounty Bash V2.7.5 — New Cards & Bounty Keeper
 
-Fixes:
-- All adjacent attacks open the Attack Response overlay, even with no Ammo.
-- All adjacent attacks open the Defense Response overlay, even with no Quick Fix / Victory Stance.
-- Combat resolves only after the player confirms or passes both stages.
-- Attack lower than Defense fails; ties count as attacker hits, as before.
-- Existing Duel for Position, CAM, NPC, cinematic hand and modal layering retained.
+Upload `index.html` and `src/` to your existing GitHub Pages repository, preserving your existing `assets/`. Upload the **separate artwork ZIP** into your repository's `assets/` folder. `crab.png` replaces the prior Crab Cannon image.
 
-Deployment: replace index.html and src/ files in your GitHub Pages repository. Keep existing assets/ unchanged.
+New cards: Fetch, Dark Gestal, Gama Pool, Chewy & Dunn. Crab Cannon artwork refreshed.
 
-Test: select a Rider, click ATTACK, choose an adjacent enemy; Attack Response should appear. Continue without buffs, then pass Defense; KO occurs only when final ATK >= final DEF.
+Chewy & Dunn: only while in its controlling player's Backlot, it may challenge an opposing Rider scoring on a Gate. The defending player selects a Chewy & Dunn copy or PASS. PASS sends the scoring Rider to its owner's Backlot and skips bonus bounty selection. If selected, standard Attack and Defense response overlays open (Ammo, Ultimate, CAM, Quick Fix, Victory Stance). Chewy gains +1 DEF while defending. If attack wins, the scoring Rider scores and Chewy is captured when space permits; if defense wins, the scoring Rider is captured into the defender's Backlot. An existing eight-card Backlot capacity applies.
 
+The provided 31 draw-weight values have been applied verbatim. New card weights default to 2 each, pending user preference. Deck composition still has a maximum of four copies per kind; one copy of each new card was added (deck 68 cards). Draw weights are not the same as deck counts.
 
-V2.7.4: KO recovery correction: moving an active allied Rider onto a friendly KO tile returns that KO card to its original owner's hand (clears KO status and board position). Moving onto an enemy KO tile captures it to the active player's Backlot under existing bounty rules. Both use standard movement costs. NPC scoring now distinguishes recovery from capture.
+Tests: `node test-v275.mjs`, `node test-combat.mjs`, `node test-ko.mjs`. Browser UI not visually verified.

@@ -2,7 +2,8 @@ import {makeDeck,shuffle,drawWeighted} from './cards.js';
 import {tileType,gateOwner,vaultOwner,neighbors,same,distance,coord} from './rules.js';
 export class Game {
  constructor(){this.reset()}
- reset(){this.players={1:{deck:shuffle(makeDeck(1)),hand:[],vault:[],discard:[],actions:3,turns:0},2:{deck:shuffle(makeDeck(2)),hand:[],vault:[],discard:[],actions:3,turns:0}};this.units=[];this.active=1;this.selected=null;this.mode='select';this.phase='setup';this.turn=0;this.log=[];this.winner=null;this.movesInRow=0;this.bonusUsed=false;this.trapEnabled=false;this.lastDuel=null;this.pendingGateClaim=null;this.pendingDefense=null;this.pendingAttack=null;this.pendingPerk=null;this.winReason=null;this.drawnThisTurn=0;this.drawEvents=[];this.attackAttempts=new Map();this.freeMoves=new Map();this.botMoves=new Map();this.message('Shuffle complete. Each player draws five.');for(let p of [1,2])for(let i=0;i<5;i++)this.draw(p,false);this.phase='action';this.turn=1;this.startTurn(true)}
+ reset(){this.players={1:{deck:shuffle(makeDeck(1)),hand:[],vault:[],discard:[],actions:3,turns:0},2:{deck:shuffle(makeDeck(2)),hand:[],vault:[],discard:[],actions:3,turns:0}};this.units=[];this.active=1;this.selected=null;this.mode='select';this.phase='setup';this.turn=0;this.log=[];this.winner=null;this.movesInRow=0;this.bonusUsed=false;this.trapEnabled=false;this.lastDuel=null;this.pendingGateClaim=null;this.pendingBacklot=null;this.pendingDefense=null;this.pendingAttack=null;this.pendingPerk=null;this.winReason=null;this.drawnThisTurn=0;this.drawEvents=[];this.attackAttempts=new Map();this.freeMoves=new Map();this.botMoves=new Map();this.message('Shuffle complete. Each player draws five.');for(let p of [1,2])for(let i=0;i<5;i++)this.draw(p,false);this.phase='action';this.turn=1;this.startTurn(true)}
+ combatUnit(id){return this.units.find(u=>u.id===id)||this.players[1].vault.find(c=>c.id===id)||this.players[2].vault.find(c=>c.id===id)}
  get me(){return this.players[this.active]}
  message(s){this.log.unshift(`[P${this.active}] ${s}`);this.log=this.log.slice(0,90)}
  draw(p,cost=true){
@@ -19,9 +20,9 @@ export class Game {
   this.message(`Player ${p} drew a card.`);
   return true;
  }
- pay(){if(this.pendingGateClaim||this.pendingDefense||this.pendingAttack||this.pendingPerk){this.message('Resolve the pending interaction before continuing.');return false}if(this.phase!=='action'||this.winner||this.me.actions<1){this.message('No actions remaining. End your turn.');return false}this.me.actions--;return true}
+ pay(){if(this.pendingGateClaim||this.pendingBacklot||this.pendingDefense||this.pendingAttack||this.pendingPerk){this.message('Resolve the pending interaction before continuing.');return false}if(this.phase!=='action'||this.winner||this.me.actions<1){this.message('No actions remaining. End your turn.');return false}this.me.actions--;return true}
  startTurn(initial=false){this.attackAttempts.clear();this.freeMoves.clear();this.botMoves.clear();this.me.actions=3;this.movesInRow=0;this.bonusUsed=false;this.drawnThisTurn=initial?0:1;this.selected=null;this.mode='select';this.me.turns++;if(!initial)this.draw(this.active,false);this.message(`Player ${this.active}: action phase — 3 actions.`)}
- endTurn(){if(this.winner||this.pendingGateClaim||this.pendingDefense||this.pendingAttack||this.pendingPerk){if(this.pendingGateClaim||this.pendingDefense||this.pendingAttack||this.pendingPerk)this.message('Resolve the pending selection first.');return;}// Resource Perks resolve before the turn passes to the opponent.
+ endTurn(){if(this.winner||this.pendingGateClaim||this.pendingBacklot||this.pendingDefense||this.pendingAttack||this.pendingPerk){if(this.pendingGateClaim||this.pendingBacklot||this.pendingDefense||this.pendingAttack||this.pendingPerk)this.message('Resolve the pending selection first.');return;}// Resource Perks resolve before the turn passes to the opponent.
   if(this.hasZapPerk(this.active)&&this.units.some(u=>u.owner===this.active&&!u.ko&&this.canOperate(u)&&neighbors(u.pos).some(t=>!this.unitAt(t.c,t.r)))){
    this.pendingPerk={player:this.active,unitId:null};this.message(`Player ${this.active}: Zap Factory end-turn movement available. Choose an ally, then a vacant adjacent tile, or skip.`);return;
   }
@@ -30,7 +31,7 @@ export class Game {
  hasZapPerk(player){return this.players[player].vault.some(c=>(c.tags||[]).includes('zap-factory'))}
  perkDestinations(){const u=this.units.find(u=>u.id===this.pendingPerk?.unitId);return u?neighbors(u.pos).filter(t=>!this.unitAt(t.c,t.r)):[]}
  selectPerkUnit(id){const p=this.pendingPerk;if(!p)return false;const u=this.units.find(u=>u.id===id&&u.owner===p.player&&!u.ko&&this.canOperate(u));if(!u||!neighbors(u.pos).some(t=>!this.unitAt(t.c,t.r)))return false;p.unitId=id;return true}
- resolvePerkMove(c,r){const p=this.pendingPerk;if(!p||!p.unitId)return false;const u=this.units.find(u=>u.id===p.unitId);if(!u||u.owner!==p.player||!neighbors(u.pos).some(t=>t.c===c&&t.r===r)||this.unitAt(c,r))return false;u.pos={c,r};this.message(`ZAP FACTORY: ${u.name} moves to ${coord(c,r)} for free.`);this.pendingPerk=null;this.checkGate(u);if(!this.winner&&!this.pendingGateClaim)this.finishTurn();else if(this.pendingGateClaim)this.pendingGateClaim.endTurnAfter=true;return true}
+ resolvePerkMove(c,r){const p=this.pendingPerk;if(!p||!p.unitId)return false;const u=this.units.find(u=>u.id===p.unitId);if(!u||u.owner!==p.player||!neighbors(u.pos).some(t=>t.c===c&&t.r===r)||this.unitAt(c,r))return false;u.pos={c,r};this.message(`ZAP FACTORY: ${u.name} moves to ${coord(c,r)} for free.`);this.pendingPerk=null;this.checkGate(u);if(!this.winner&&!this.pendingGateClaim&&!this.pendingBacklot)this.finishTurn();else if(this.pendingGateClaim)this.pendingGateClaim.endTurnAfter=true;else if(this.pendingBacklot)this.pendingBacklot.endTurnAfter=true;return true}
  skipPerk(){if(!this.pendingPerk)return false;this.message('Zap Factory movement skipped.');this.pendingPerk=null;this.finishTurn();return true}
  finishTurn(){this.phase='end';this.message(`Player ${this.active} ends their turn with ${this.me.vault.length}/8 bounties.`);if(this.me.vault.length>=8){this.declareWinner(this.active,'Eight bounties secured');return}if(!this.me.deck.length&&!this.me.hand.length&&!this.units.some(u=>u.owner===this.active&&!u.ko)){this.winner=3-this.active;this.message(`Player ${this.active} forfeits: no remaining playable resources.`);return}this.active=3-this.active;this.turn++;this.phase='action';this.startTurn()}
 
@@ -49,7 +50,7 @@ export class Game {
  currentOwner(card){for(const p of [1,2])if(this.players[p].vault.some(c=>c.id===card.id))return p;return card.owner;}
  unitAt(c,r){return this.units.find(u=>u.pos.c===c&&u.pos.r===r)}
  selectUnit(id){let u=this.units.find(x=>x.id===id);if(u&&u.owner===this.active&&!u.ko){this.selected={source:'board',id};this.mode='move';this.message(`Selected ${u.name}. Choose a highlighted tile to move or duel.`)}else this.message('Select an active allied unit.')}
- declareWinner(player,reason='Eight bounties secured'){if(this.winner)return;this.winner=player;this.winReason=reason;this.phase='finished';this.pendingGateClaim=null;this.pendingAttack=null;this.pendingDefense=null;this.pendingPerk=null;this.message(`VICTORY! Player ${player} wins — ${reason}.`)}
+ declareWinner(player,reason='Eight bounties secured'){if(this.winner)return;this.winner=player;this.winReason=reason;this.phase='finished';this.pendingGateClaim=null;this.pendingBacklot=null;this.pendingAttack=null;this.pendingDefense=null;this.pendingPerk=null;this.message(`VICTORY! Player ${player} wins — ${reason}.`)}
  scoreBounty(player,card,reason){if(this.players[player].vault.length>=8){this.message('Backlot full: cannot score another bounty.');return false}this.players[player].vault.push(card);card.controller=player;this.message(`${reason}: ${card.name} scored for Player ${player} (+${card.bountyValue??1} point).`);if(this.players[player].vault.length>=8)this.declareWinner(player);return true}
  playStance(id){if(this.winner||this.phase!=='action'||this.pendingAttack||this.pendingDefense||this.pendingGateClaim||this.pendingPerk)return false;const card=this.me.hand.find(c=>c.id===id&&c.type==='stance');if(!card)return false;if(this.me.vault.length>=8){this.message('Backlot is full.');return false}this.me.hand=this.me.hand.filter(c=>c.id!==id);this.scoreBounty(this.active,card,'INSTANT BOUNTY');this.selected=null;this.mode='select';return true}
  clearSelection(){if(this.pendingAttack||this.pendingDefense||this.pendingGateClaim||this.pendingPerk)return false;this.selected=null;this.mode='select';return true}
@@ -101,7 +102,8 @@ export class Game {
   const chirpBonus=tileType(def.pos.c,def.pos.r)==='gate'&&this.players[def.owner].vault.some(c=>(c.tags||[]).includes('gate-chirp'))?1:0;
   const stanceBonus=(def.tags||[]).includes('twins')?this.players[def.owner].vault.filter(c=>c.type==='stance').length:0;
   const twinsRelay=this.units.filter(u=>u.owner===def.owner&&u.id!==def.id&&!u.ko&&distance(u.pos,def.pos)===1&&(u.tags||[]).includes('twins')&&this.units.some(k=>k.owner===def.owner&&!k.ko&&(k.tags||[]).includes('repair-relay-2')&&distance(k.pos,u.pos)===1)).length;
-  const baseDefense=def.defense+mascotBonus+rallyBonus+gateDefenseBonus+chirpBonus+stanceBonus+twinsRelay;
+  const fetchBonus=(def.tags||[]).includes('gatekeeper-mascot')?this.units.filter(u=>u.owner===def.owner&&u.id!==def.id&&!u.ko&&(u.tags||[]).includes('gate-keeper')).length:0;
+  const baseDefense=def.defense+fetchBonus+mascotBonus+rallyBonus+gateDefenseBonus+chirpBonus+stanceBonus+twinsRelay;
   const ammo=this.players[att.owner].hand.filter(c=>c.type==='ammo'||c.type==='ultimate');
   // Every combat begins with an attacker response, including adjacent attacks
   // with no Ammo. Never resolve an attack before the response windows open.
@@ -124,7 +126,7 @@ export class Game {
  }
  resolveAttack(useCards=true){
   const p=this.pendingAttack;if(!p)return;
-  const att=this.units.find(u=>u.id===p.attId),def=this.units.find(u=>u.id===p.defId);
+  const att=this.combatUnit(p.attId),def=this.combatUnit(p.defId);
   if(!att||!def){this.pendingAttack=null;return}
   const cards=this.players[att.owner].hand.filter(c=>p.chosen.includes(c.id));
   const ammoBonus=useCards?cards.reduce((n,c)=>n+c.attack,0):0;
@@ -140,7 +142,7 @@ export class Game {
  beginDefense(att,def,kind,atk,defense,moveContext=null){
   const required=Math.max(0,atk-defense+1); // Defense must EXCEED attack; ties are hits.
   const fixes=this.players[def.owner].hand.filter(c=>c.type==='fix'||c.type==='stance');
-  if(kind==='position'||kind==='adjacent'){
+  if(kind==='position'||kind==='adjacent'||kind==='backlot'){
    this.pendingDefense={attId:att.id,defId:def.id,kind,moveContext,atk,baseDefense:defense,required,available:fixes.map(c=>c.id),chosen:[],canDefend:fixes.reduce((n,c)=>n+c.defense,0)>=required};
    this.message(`Player ${def.owner}: Defense response requested (+${required} defense needed).`);
    return;
@@ -153,7 +155,7 @@ export class Game {
  }
  resolveDefense(useCards=true){
   const pending=this.pendingDefense;if(!pending)return;
-  const att=this.units.find(u=>u.id===pending.attId),def=this.units.find(u=>u.id===pending.defId);
+  const att=this.combatUnit(pending.attId),def=this.combatUnit(pending.defId);
   if(!att||!def){this.pendingDefense=null;return}
   const cards=this.players[def.owner].hand.filter(c=>pending.chosen.includes(c.id));
   const bonus=useCards?cards.reduce((n,c)=>n+c.defense,0):0;
@@ -169,6 +171,23 @@ export class Game {
   const success=atk>=defense; // A tie is an attacker hit; defender must exceed Attack to block.
   this.lastDuel={att:att.name,def:def.name,atk,defense,kind,success};
   this.message(`${kind==='position'?'POSITION DUEL':'ATTACK'}: ${att.name} ${atk} ATK vs ${def.name} ${defense} DEF — ${success?'HIT':'DEFENDED'}.`);
+  if(kind==='backlot'){
+   const pending=this.pendingBacklot;
+   if(!pending)return;
+   this.pendingBacklot=null;
+   if(success){
+    const source=this.players[pending.opponent].vault;
+    const index=source.findIndex(c=>c.id===def.id);
+    if(index>=0&&this.players[pending.scorer].vault.length<7){source.splice(index,1);this.finishGateScore(att,pending.opponent,true);if(!this.winner)this.scoreBounty(pending.scorer,def,'BOUNTY KEEPER CAPTURE');}
+    else this.finishGateScore(att,pending.opponent,true);
+   }else{
+    this.units=this.units.filter(u=>u.id!==att.id);
+    this.scoreBounty(pending.opponent,att,'CHEWY & DUNN DEFENSE CAPTURE');
+    this.message('Chewy & Dunn defended the Backlot. Attacking Rider captured as a bounty.');
+   }
+   if(pending.endTurnAfter&&!this.winner&&!this.pendingGateClaim)this.finishTurn();
+   return;
+  }
   if(success){def.hp=0;if(kind==='position'){this.capture(def,att.owner);this.units=this.units.filter(u=>u.id!==def.id);if(moveContext)att.pos=moveContext.dest;this.checkGate(att)}else{def.ko=true;this.message(`${def.name} is KNOCKED OUT. Move onto its tile to claim.`)}}
   else if(kind==='position'&&moveContext){att.pos=moveContext.old;this.message('Duel for Position defended; attacker remains at previous tile.')}
  }
@@ -181,10 +200,37 @@ export class Game {
   // The existing eight-slot limit is respected. Printed bounty value is tracked separately.
   if(!unit.bounty){this.message('Non-bounty unit reached enemy Gate: cannot enter Bounty Vault.');return}
   if(this.players[scorer].vault.length>=8){this.message('Own Bounty Vault is full: Gate scoring cannot place this unit.');return}
+  const keepers=this.players[opponent].vault.filter(c=>(c.tags||[]).includes('bounty-keeper'));
+  if(keepers.length){
+   this.pendingBacklot={scorer,opponent,unitId:unit.id,keepers:keepers.map(c=>c.id)};
+   this.message(`BOUNTY KEEPER: Player ${opponent} may defend the Backlot with Chewy & Dunn or PASS.`);
+   return;
+  }
+  this.finishGateScore(unit,opponent,false);
+ }
+ chooseBacklotDefense(cardId){
+  const pending=this.pendingBacklot;if(!pending||this.pendingAttack||this.pendingDefense)return false;
+  const att=this.units.find(u=>u.id===pending.unitId);
+  if(!att)return false;
+  if(!cardId){this.pendingBacklot=null;this.finishGateScore(att,pending.opponent,true);if(pending.endTurnAfter&&!this.winner)this.finishTurn();return true}
+  const def=this.players[pending.opponent].vault.find(c=>c.id===cardId&&pending.keepers.includes(c.id));
+  if(!def)return false;
+  const bonus=1;
+  const support=this.units.filter(u=>u.owner===att.owner&&u.id!==att.id&&!u.ko&&distance(u.pos,att.pos)===1).reduce((n,u)=>n+u.attack,0);
+  const atk=att.attack+support;
+  const defense=def.defense+bonus;
+  const ammo=this.players[att.owner].hand.filter(c=>c.type==='ammo'||c.type==='ultimate');
+  const needed=Math.max(0,defense-atk);
+  this.pendingAttack={attId:att.id,defId:def.id,kind:'backlot',moveContext:null,baseAttack:atk,baseDefense:defense,needed,camActions:0,maxCamActions:this.players[att.owner].actions,available:ammo.map(c=>c.id),chosen:[],canBoost:ammo.reduce((n,c)=>n+c.attack,0)+this.players[att.owner].actions>=needed};
+  this.message('CHEWY & DUNN: Backlot defense duel initiated (+1 DEF).');return true;
+ }
+ finishGateScore(unit,opponent,skipClaim=false){
+  const scorer=unit.owner;
   this.units=this.units.filter(u=>u.id!==unit.id);
   this.scoreBounty(scorer,unit,'GATE SCORE');
   if((unit.tags||[]).includes('score-draw')&&!this.winner){this.draw(scorer,false);this.message('STEEL TOOTH WILLY: Score’n Draw bonus card.')}
   if(this.winner)return;
+  if(skipClaim)return;
   const available=this.players[opponent].vault.filter(c=>c.bounty);
   if(available.length && this.players[scorer].vault.length<8){
     this.pendingGateClaim={scorer,opponent,options:available.map(c=>c.id)};
@@ -206,5 +252,5 @@ export class Game {
  bountyPoints(p){return this.players[p].vault.reduce((sum,c)=>sum+(c.bountyValue??(c.bounty?1:0)),0)}
 
  recall(){let card=this.selectedCard();if(!card||this.selected.source!=='board'||card.owner!==this.active||card.ko)return;if(!this.canOperate(card)){this.message('RCee Controller required to recall this Device.');return}if(!this.pay())return;this.units=this.units.filter(u=>u.id!==card.id);this.me.hand.push(card);this.selected=null;this.mode='select';this.movesInRow=0;this.message(`${card.name} recalled to hand.`)}
- clickTile(c,r){if(this.phase!=='action'||this.winner||this.pendingGateClaim||this.pendingDefense||this.pendingAttack||this.pendingPerk)return;let unit=this.unitAt(c,r);if(this.mode==='activate')return this.deploy(c,r);if(this.mode==='move'&&this.selected?.source==='board'){if(unit?.owner===this.active&&!unit.ko)return this.selectUnit(unit.id);return this.move(c,r)}if(this.mode==='attack')return this.attack(c,r);if(unit)return this.selectUnit(unit.id);this.message(`Tile ${coord(c,r)} selected.`)}
+ clickTile(c,r){if(this.phase!=='action'||this.winner||this.pendingGateClaim||this.pendingBacklot||this.pendingDefense||this.pendingAttack||this.pendingPerk)return;let unit=this.unitAt(c,r);if(this.mode==='activate')return this.deploy(c,r);if(this.mode==='move'&&this.selected?.source==='board'){if(unit?.owner===this.active&&!unit.ko)return this.selectUnit(unit.id);return this.move(c,r)}if(this.mode==='attack')return this.attack(c,r);if(unit)return this.selectUnit(unit.id);this.message(`Tile ${coord(c,r)} selected.`)}
 }
