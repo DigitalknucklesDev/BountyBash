@@ -33,7 +33,8 @@ export function actionOptions(g,difficulty){
 function gNeighbors(u,g){return [{c:u.pos.c+1,r:u.pos.r},{c:u.pos.c-1,r:u.pos.r},{c:u.pos.c,r:u.pos.r+1},{c:u.pos.c,r:u.pos.r-1}].filter(t=>t.c>=0&&t.c<8&&t.r>=1&&t.r<=6&&tileType(t.c,t.r)!=='vault'&&tileType(t.c,t.r)!=='utility');}
 export function aiStep(g,difficulty='normal'){
  if(g.winner)return false;
- if(g.pendingBacklot&&!g.pendingAttack&&!g.pendingDefense){const keeper=g.players[g.pendingBacklot.opponent].vault.find(c=>g.pendingBacklot.keepers.includes(c.id));g.chooseBacklotDefense(keeper?.id||null);return true}
+ if(g.pendingBacklot&&!g.pendingAttack&&!g.pendingDefense){const keeper=g.players[g.pendingBacklot.opponent].vault.find(c=>g.pendingBacklot.keepers.includes(c.id));if(keeper)g.chooseBacklotDefense(keeper.id);return true}
+ if(g.pendingGateClaim?.chewyGuard&&difficulty!=='hard'){g.passGateBounty();return true}
  if(g.pendingGateClaim){const x=choose(g.players[g.pendingGateClaim.opponent].vault.filter(c=>g.pendingGateClaim.options.includes(c.id)),c=>c.bountyValue||1,difficulty);if(x)g.chooseGateBounty(x.id);return true}
  if(g.pendingAttack){const p=g.pendingAttack,att=g.combatUnit(p.attId);if(!att)return false;const cards=g.players[att.owner].hand.filter(c=>p.available.includes(c.id)).sort((a,b)=>a.attack-b.attack);let need=Math.max(0,p.baseDefense-p.baseAttack);for(const c of cards){if(need<=0)break;g.toggleAttackCard(c.id);need-=c.attack}g.setCamActions(Math.min(Math.max(0,need),p.maxCamActions));g.resolveAttack(true);return true}
  if(g.pendingDefense){const p=g.pendingDefense,def=g.combatUnit(p.defId);if(!def)return false;let need=p.required;const cards=g.players[def.owner].hand.filter(c=>p.available.includes(c.id)).sort((a,b)=>a.defense-b.defense);if(p.canDefend){for(const c of cards){if(need<=0)break;g.toggleDefenseCard(c.id);need-=c.defense}}g.resolveDefense(need<=0);return true}

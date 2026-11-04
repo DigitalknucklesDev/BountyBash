@@ -202,8 +202,10 @@ export class Game {
   if(this.players[scorer].vault.length>=8){this.message('Own Bounty Vault is full: Gate scoring cannot place this unit.');return}
   const keepers=this.players[opponent].vault.filter(c=>(c.tags||[]).includes('bounty-keeper'));
   if(keepers.length){
-   this.pendingBacklot={scorer,opponent,unitId:unit.id,keepers:keepers.map(c=>c.id)};
-   this.message(`BOUNTY KEEPER: Player ${opponent} may defend the Backlot with Chewy & Dunn or PASS.`);
+   // The scorer, not the Bounty Keeper's controller, decides whether to risk a bonus claim.
+   // Defer scoring until this choice is resolved, so a failed duel can capture the scorer.
+   this.pendingGateClaim={scorer,opponent,unitId:unit.id,options:this.players[opponent].vault.filter(c=>c.bounty).map(c=>c.id),chewyGuard:true};
+   this.message(`GATE SCORE: Player ${scorer} may PASS to bank the Rider, or attempt a bonus bounty. Chewy & Dunn automatically defends any attempted claim.`);
    return;
   }
   this.finishGateScore(unit,opponent,false);
@@ -212,7 +214,7 @@ export class Game {
   const pending=this.pendingBacklot;if(!pending||this.pendingAttack||this.pendingDefense)return false;
   const att=this.units.find(u=>u.id===pending.unitId);
   if(!att)return false;
-  if(!cardId){this.pendingBacklot=null;this.finishGateScore(att,pending.opponent,true);if(pending.endTurnAfter&&!this.winner)this.finishTurn();return true}
+  if(!cardId)return false; // The scorer's PASS is handled by passGateBounty before a duel begins.
   const def=this.players[pending.opponent].vault.find(c=>c.id===cardId&&pending.keepers.includes(c.id));
   if(!def)return false;
   const bonus=1;
@@ -237,17 +239,37 @@ export class Game {
     this.message(`Gate bonus: Player ${scorer}, select one bounty from Player ${opponent}'s Vault.`);
   }else if(available.length){this.message('Gate bonus unavailable: own Vault is full.');}
  }
+ passGateBounty(){
+  const pending=this.pendingGateClaim;
+  if(!pending||!pending.chewyGuard)return false;
+  const unit=this.units.find(u=>u.id===pending.unitId);
+  this.pendingGateClaim=null;
+  if(!unit)return false;
+  this.message(`Player ${pending.scorer} passes the bonus bounty claim. No Chewy & Dunn challenge.`);
+  this.finishGateScore(unit,pending.opponent,true);
+  if(pending.endTurnAfter&&!this.winner)this.finishTurn();
+  return true;
+ }
  chooseGateBounty(cardId){
   const pending=this.pendingGateClaim;
-  if(!pending)return;
+  if(!pending)return false;
   const source=this.players[pending.opponent].vault;
   const idx=source.findIndex(c=>c.id===cardId&&c.bounty&&pending.options.includes(c.id));
-  if(idx<0){this.message('Select an available bounty from the opposing Vault.');return}
-  if(this.players[pending.scorer].vault.length>=8){this.message('Own Vault is full.');this.pendingGateClaim=null;return}
+  if(idx<0){this.message('Select an available bounty from the opposing Vault.');return false}
+  if(this.players[pending.scorer].vault.length>=8){this.message('Own Vault is full.');this.pendingGateClaim=null;return false}
+  if(pending.chewyGuard){
+   const keeper=source.find(c=>(c.tags||[]).includes('bounty-keeper'));
+   if(!keeper)return false;
+   this.pendingGateClaim=null;
+   this.pendingBacklot={scorer:pending.scorer,opponent:pending.opponent,unitId:pending.unitId,keepers:[keeper.id],endTurnAfter:pending.endTurnAfter};
+   this.message(`BOUNTY KEEPER: ${keeper.name} automatically challenges the attempted Backlot claim.`);
+   return this.chooseBacklotDefense(keeper.id);
+  }
   const [card]=source.splice(idx,1);card.controller=pending.scorer;
   this.pendingGateClaim=null;
   this.scoreBounty(pending.scorer,card,'GATE BONUS');
   this.message(`GATE BONUS: ${card.name} claimed from Player ${pending.opponent}'s Vault. Player ${pending.scorer}: ${this.players[pending.scorer].vault.length}/8.`);if(pending.endTurnAfter&&!this.winner)this.finishTurn();
+  return true;
  }
  bountyPoints(p){return this.players[p].vault.reduce((sum,c)=>sum+(c.bountyValue??(c.bounty?1:0)),0)}
 
