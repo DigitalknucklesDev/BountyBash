@@ -10,10 +10,10 @@ export function actionOptions(g,difficulty){
  for(const u of units){
   for(const t of g.units.length>=0?gNeighbors(u,g):[]){
    const other=g.unitAt(t.c,t.r);
-   if(other?.owner===p)continue;
+   if(other?.owner===p&&!other.ko)continue;
    let score=3+Math.max(0,5-distance(t,{c:u.pos.c,r:enemyGate(u)}))*.4;
    if(tileType(t.c,t.r)==='gate'&&gateOwner(t.r)!==p)score+=16;
-   if(other){if(other.ko)score+=10;else if((u.tags||[]).includes('bounty-plow')&&other.bounty&&g.controllerActive(p))score+=13;else score+=(u.attack>=other.defense?5:-4)}
+   if(other){if(other.ko)score+=other.owner===p?8:14;else if((u.tags||[]).includes('bounty-plow')&&other.bounty&&g.controllerActive(p))score+=13;else score+=(u.attack>=other.defense?5:-4)}
    options.push({kind:'move',unit:u,t,score});
   }
   for(const e of enemies.filter(e=>distance(u.pos,e.pos)===1))options.push({kind:'attack',unit:u,t:e.pos,score:u.attack>=e.defense?7:1});
