@@ -1,6 +1,7 @@
+import { audioManifest } from './audio-manifest.js';
 /** Scraplords Audio v2 — browser ES module, no dependencies. */
 export class ScraplordsAudio {
-  constructor({ baseUrl = new URL('../', import.meta.url).href, manifest = null } = {}) {
+  constructor({ baseUrl = new URL('../', import.meta.url).href, manifest = audioManifest } = {}) {
     this.baseUrl = baseUrl;
     this.manifest = manifest;
     this.music = null;
@@ -13,14 +14,7 @@ export class ScraplordsAudio {
     this.muted = localStorage.getItem('scrap_muted') === 'true';
     this.lastTrack = null;
   }
-  async init() {
-    if (!this.manifest) {
-      const response = await fetch(new URL('audio-manifest.json', this.baseUrl));
-      if (!response.ok) throw new Error('Audio manifest could not be loaded');
-      this.manifest = await response.json();
-    }
-    return this;
-  }
+  init() { return this; }
   url(path) { return new URL(path, this.baseUrl).href; }
   pick(items, previous = null) {
     if (!items?.length) return null;
@@ -29,8 +23,8 @@ export class ScraplordsAudio {
   }
   /** Call once when creating a new single match or BO3 series.
       Pass stable series ID on refresh to keep the same soundtrack. */
-  async startSession(sessionId, { resume = false } = {}) {
-    await this.init();
+  startSession(sessionId, { resume = false } = {}) {
+
     if (!sessionId) throw new Error('startSession requires a stable match/series ID');
     const saved = this.readSession();
     const tracks = Object.keys(this.manifest.music);
@@ -39,24 +33,24 @@ export class ScraplordsAudio {
     this.currentSessionId = sessionId;
     this.lastTrack = track;
     sessionStorage.setItem('scrap_audio_session', JSON.stringify({ id: sessionId, track }));
-    await this.startMusic(track);
+    this.startMusic(track);
     return track;
   }
   readSession() {
     try { return JSON.parse(sessionStorage.getItem('scrap_audio_session') || 'null'); }
     catch { return null; }
   }
-  async resumeSession() {
+  resumeSession() {
     const saved = this.readSession();
     if (!saved) return null;
     return this.startSession(saved.id, { resume: true });
   }
-  async startMusic(track) {
-    await this.init();
+  startMusic(track) {
+
     if (!this.manifest.music[track]) return false;
     if (this.music && this.currentTrack === track) {
       this.music.volume = this.muted ? 0 : this.musicVolume;
-      try { await this.music.play(); return true; } catch { return false; }
+      this.attemptPlay(this.music, 'Music'); return true;
     }
     this.stopMusic();
     const audio = new Audio(this.url(this.manifest.music[track]));
@@ -65,12 +59,12 @@ export class ScraplordsAudio {
     audio.volume = this.muted ? 0 : this.musicVolume;
     this.music = audio;
     this.currentTrack = track;
-    try { await audio.play(); return true; } catch { return false; }
+    this.attemptPlay(audio, 'Music'); return true;
   }
   stopMusic() { if (this.music) { this.music.pause(); this.music.currentTime = 0; this.music = null; } this.currentTrack = null; }
   pauseMusic() { this.music?.pause(); }
-  async play(event) {
-    await this.init();
+  play(event) {
+
     const variants = this.manifest.sfx[event];
     if (!variants?.length) { console.warn('Unknown Scraplords audio event:', event); return null; }
     const path = this.pick(variants, this.lastSfx.get(event));
@@ -81,9 +75,17 @@ export class ScraplordsAudio {
     const cleanup = () => this.activeSfx.delete(audio);
     audio.addEventListener('ended', cleanup, { once: true });
     audio.addEventListener('error', cleanup, { once: true });
-    try { await audio.play(); } catch { cleanup(); }
+    this.attemptPlay(audio, `SFX ${event}`, cleanup);
     return path;
   }
+  attemptPlay(audio, label, onFailure = () => {}) {
+    audio.addEventListener('error', () => this.report(`${label}: file missing or unsupported (${audio.currentSrc || audio.src})`), {once:true});
+    try {
+      const result = audio.play(); // Must be called synchronously inside user gesture.
+      if (result?.catch) result.catch(err => { this.report(`${label}: ${err.message}`); onFailure(); });
+    } catch (err) { this.report(`${label}: ${err.message}`); onFailure(); }
+  }
+  report(message) { this.status = message; console.warn('Scraplords Audio:', message); document.dispatchEvent(new CustomEvent('scrap-audio-status',{detail:message})); }
   setMusicVolume(v) { this.musicVolume = Math.max(0, Math.min(1, Number(v))); localStorage.setItem('scrap_music_volume', String(this.musicVolume)); if (this.music) this.music.volume = this.muted ? 0 : this.musicVolume; }
   setSfxVolume(v) { this.sfxVolume = Math.max(0, Math.min(1, Number(v))); localStorage.setItem('scrap_sfx_volume', String(this.sfxVolume)); for (const a of this.activeSfx) a.volume = this.muted ? 0 : this.sfxVolume; }
   setMuted(value) { this.muted = Boolean(value); localStorage.setItem('scrap_muted', String(this.muted)); if (this.music) this.music.volume = this.muted ? 0 : this.musicVolume; for (const a of this.activeSfx) a.volume = this.muted ? 0 : this.sfxVolume; }

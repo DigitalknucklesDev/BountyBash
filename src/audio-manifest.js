@@ -1,0 +1,167 @@
+/* Bundled manifest: no network fetch before browser audio gesture. */
+export const audioManifest = {
+  "music": {
+    "battle2_loop": "assets/audio/music/battle2_loop.wav",
+    "battle_loop": "assets/audio/music/battle_loop.wav",
+    "circuit_junkie_Loop": "assets/audio/music/circuit_junkie_Loop.wav",
+    "junkyard_riot_Loop": "assets/audio/music/junkyard_riot_Loop.wav",
+    "junkyard_rush_Loop": "assets/audio/music/junkyard_rush_Loop.wav",
+    "last_shift_foundry_Loop": "assets/audio/music/last_shift_foundry_Loop.wav",
+    "pressure_rising_Loop": "assets/audio/music/pressure_rising_Loop.wav",
+    "pressure_valve_Loop": "assets/audio/music/pressure_valve_Loop.wav",
+    "redline_riot_Loop": "assets/audio/music/redline_riot_Loop.wav",
+    "rust_and_rumble_Loop": "assets/audio/music/rust_and_rumble_Loop.wav",
+    "scrapheap_stomp_Loop": "assets/audio/music/scrapheap_stomp_Loop.wav"
+  },
+  "sfx": {
+    "ability_activate": [
+      "assets/audio/sfx/ability_activate_1.wav",
+      "assets/audio/sfx/ability_activate_2.wav"
+    ],
+    "action_confirm": [
+      "assets/audio/sfx/action_confirm_1.wav",
+      "assets/audio/sfx/action_confirm_2.wav"
+    ],
+    "action_invalid": [
+      "assets/audio/sfx/action_invalid_1.wav",
+      "assets/audio/sfx/action_invalid_2.wav"
+    ],
+    "ammo": [
+      "assets/audio/sfx/ammo_1.wav",
+      "assets/audio/sfx/ammo_2.wav"
+    ],
+    "attack": [
+      "assets/audio/sfx/attack.wav",
+      "assets/audio/sfx/attack2.wav",
+      "assets/audio/sfx/attack3.wav",
+      "assets/audio/sfx/attack4.wav"
+    ],
+    "backlot_claim": [
+      "assets/audio/sfx/backlot_claim_1.wav",
+      "assets/audio/sfx/backlot_claim_2.wav"
+    ],
+    "bounty_capture": [
+      "assets/audio/sfx/bounty_capture.wav",
+      "assets/audio/sfx/bounty_capture3.wav",
+      "assets/audio/sfx/bounty_capture4.wav"
+    ],
+    "card_deploy": [
+      "assets/audio/sfx/card_deploy.wav",
+      "assets/audio/sfx/card_deploy3.wav",
+      "assets/audio/sfx/card_deploy4.wav"
+    ],
+    "card_deselect": [
+      "assets/audio/sfx/card_deselect_1.wav",
+      "assets/audio/sfx/card_deselect_2.wav"
+    ],
+    "card_discard": [
+      "assets/audio/sfx/card_discard_1.wav",
+      "assets/audio/sfx/card_discard_2.wav"
+    ],
+    "card_draw": [
+      "assets/audio/sfx/card_draw.wav",
+      "assets/audio/sfx/card_draw3.wav",
+      "assets/audio/sfx/card_draw4.wav"
+    ],
+    "card_recall": [
+      "assets/audio/sfx/card_recall_1.wav",
+      "assets/audio/sfx/card_recall_2.wav"
+    ],
+    "card_select": [
+      "assets/audio/sfx/card_select_1.wav",
+      "assets/audio/sfx/card_select_2.wav"
+    ],
+    "card_swap": [
+      "assets/audio/sfx/card_swap_1.wav",
+      "assets/audio/sfx/card_swap_2.wav"
+    ],
+    "countdown": [
+      "assets/audio/sfx/countdown_1.wav",
+      "assets/audio/sfx/countdown_2.wav"
+    ],
+    "defense": [
+      "assets/audio/sfx/defense.wav",
+      "assets/audio/sfx/defense2.wav",
+      "assets/audio/sfx/defense3.wav",
+      "assets/audio/sfx/defense4.wav"
+    ],
+    "duel_start": [
+      "assets/audio/sfx/duel_start_1.wav",
+      "assets/audio/sfx/duel_start_2.wav"
+    ],
+    "gate_score": [
+      "assets/audio/sfx/gate_score_1.wav",
+      "assets/audio/sfx/gate_score_2.wav"
+    ],
+    "gate_steal": [
+      "assets/audio/sfx/gate_steal_1.wav",
+      "assets/audio/sfx/gate_steal_2.wav"
+    ],
+    "hand_limit": [
+      "assets/audio/sfx/hand_limit_1.wav",
+      "assets/audio/sfx/hand_limit_2.wav"
+    ],
+    "hover": [
+      "assets/audio/sfx/hover_1.wav",
+      "assets/audio/sfx/hover_2.wav"
+    ],
+    "ko": [
+      "assets/audio/sfx/ko.wav",
+      "assets/audio/sfx/ko3.wav",
+      "assets/audio/sfx/ko4.wav"
+    ],
+    "ko_recover": [
+      "assets/audio/sfx/ko_recover_1.wav",
+      "assets/audio/sfx/ko_recover_2.wav"
+    ],
+    "menu_close": [
+      "assets/audio/sfx/menu_close_1.wav",
+      "assets/audio/sfx/menu_close_2.wav"
+    ],
+    "menu_open": [
+      "assets/audio/sfx/menu_open_1.wav",
+      "assets/audio/sfx/menu_open_2.wav"
+    ],
+    "move": [
+      "assets/audio/sfx/move_1.wav",
+      "assets/audio/sfx/move_2.wav"
+    ],
+    "quick_fix": [
+      "assets/audio/sfx/quick_fix_1.wav",
+      "assets/audio/sfx/quick_fix_2.wav"
+    ],
+    "rcee": [
+      "assets/audio/sfx/rcee_1.wav",
+      "assets/audio/sfx/rcee_2.wav"
+    ],
+    "round_win": [
+      "assets/audio/sfx/round_win_1.wav",
+      "assets/audio/sfx/round_win_2.wav"
+    ],
+    "series_win": [
+      "assets/audio/sfx/series_win_1.wav",
+      "assets/audio/sfx/series_win_2.wav"
+    ],
+    "shuffle": [
+      "assets/audio/sfx/shuffle_1.wav",
+      "assets/audio/sfx/shuffle_2.wav"
+    ],
+    "turn_end": [
+      "assets/audio/sfx/turn_end_1.wav",
+      "assets/audio/sfx/turn_end_2.wav"
+    ],
+    "turn_start": [
+      "assets/audio/sfx/turn_start_1.wav",
+      "assets/audio/sfx/turn_start_2.wav"
+    ],
+    "ultimate": [
+      "assets/audio/sfx/ultimate_1.wav",
+      "assets/audio/sfx/ultimate_2.wav"
+    ],
+    "victory": [
+      "assets/audio/sfx/victory.wav",
+      "assets/audio/sfx/victory3.wav",
+      "assets/audio/sfx/victory4.wav"
+    ]
+  }
+};
