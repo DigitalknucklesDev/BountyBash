@@ -33,6 +33,7 @@ export function actionOptions(g,difficulty){
 function gNeighbors(u,g){return [{c:u.pos.c+1,r:u.pos.r},{c:u.pos.c-1,r:u.pos.r},{c:u.pos.c,r:u.pos.r+1},{c:u.pos.c,r:u.pos.r-1}].filter(t=>t.c>=0&&t.c<8&&t.r>=1&&t.r<=6&&tileType(t.c,t.r)!=='vault'&&tileType(t.c,t.r)!=='utility');}
 export function aiStep(g,difficulty='normal'){
  if(g.winner)return false;
+ if(g.pendingHandDiscard){const hand=g.players[g.pendingHandDiscard.player].hand;const card=[...hand].sort((a,b)=>(a.bountyValue||0)-(b.bountyValue||0)||(a.attack||0)+(a.defense||0)-(b.attack||0)-(b.defense||0))[0];if(card)g.discardEndPhaseCard(card.id);return true;}
  if(g.pendingBacklot&&!g.pendingAttack&&!g.pendingDefense){const keeper=g.players[g.pendingBacklot.opponent].vault.find(c=>g.pendingBacklot.keepers.includes(c.id));if(keeper)g.chooseBacklotDefense(keeper.id);return true}
  if(g.pendingGateClaim?.chewyGuard&&difficulty!=='hard'){g.passGateBounty();return true}
  if(g.pendingGateClaim){const x=choose(g.players[g.pendingGateClaim.opponent].vault.filter(c=>g.pendingGateClaim.options.includes(c.id)),c=>c.bountyValue||1,difficulty);if(x)g.chooseGateBounty(x.id);return true}

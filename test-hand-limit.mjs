@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {Game} from './src/engine.js';
+import {aiStep} from './src/ai.js';
+const g=new Game();const p=g.active;
+while(g.players[p].hand.length<10)assert.equal(g.draw(p,false),true);
+g.finishTurn();assert.equal(g.active,p);assert.equal(g.phase,'end');assert.equal(g.pendingHandDiscard.player,p);assert.equal(g.players[p].hand.length,10);
+assert.equal(g.draw(p),false);
+assert.equal(g.discardEndPhaseCard('unknown'),false);
+const d=g.players[p].discard.length;
+assert.equal(g.discardEndPhaseCard(g.players[p].hand[0].id),true);assert.equal(g.players[p].discard.length,d+1);
+assert.equal(g.active,p);
+assert.equal(aiStep(g,'hard'),true);assert.equal(aiStep(g,'hard'),true);
+assert.equal(g.players[p].hand.length,7);assert.equal(g.pendingHandDiscard,null);assert.equal(g.active,3-p);
+const h=new Game();h.finishTurn();assert.equal(h.pendingHandDiscard,null);assert.equal(h.active,2);
+console.log('End-phase hand limit: human and NPC discard flow, normal turn, action lock passed');

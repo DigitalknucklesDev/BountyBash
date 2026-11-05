@@ -2,7 +2,7 @@ import {makeDeck,shuffle,drawWeighted} from './cards.js';
 import {tileType,gateOwner,vaultOwner,neighbors,same,distance,coord} from './rules.js';
 export class Game {
  constructor(){this.reset()}
- reset(){this.players={1:{deck:shuffle(makeDeck(1)),hand:[],vault:[],discard:[],actions:3,turns:0},2:{deck:shuffle(makeDeck(2)),hand:[],vault:[],discard:[],actions:3,turns:0}};this.units=[];this.active=1;this.selected=null;this.mode='select';this.phase='setup';this.turn=0;this.log=[];this.winner=null;this.movesInRow=0;this.bonusUsed=false;this.trapEnabled=false;this.lastDuel=null;this.pendingGateClaim=null;this.pendingBacklot=null;this.pendingDefense=null;this.pendingAttack=null;this.pendingPerk=null;this.winReason=null;this.drawnThisTurn=0;this.drawEvents=[];this.attackAttempts=new Map();this.freeMoves=new Map();this.botMoves=new Map();this.message('Shuffle complete. Each player draws five.');for(let p of [1,2])for(let i=0;i<5;i++)this.draw(p,false);this.phase='action';this.turn=1;this.startTurn(true)}
+ reset(){this.players={1:{deck:shuffle(makeDeck(1)),hand:[],vault:[],discard:[],actions:3,turns:0},2:{deck:shuffle(makeDeck(2)),hand:[],vault:[],discard:[],actions:3,turns:0}};this.units=[];this.active=1;this.selected=null;this.mode='select';this.phase='setup';this.turn=0;this.log=[];this.winner=null;this.movesInRow=0;this.bonusUsed=false;this.trapEnabled=false;this.lastDuel=null;this.pendingGateClaim=null;this.pendingBacklot=null;this.pendingDefense=null;this.pendingAttack=null;this.pendingPerk=null;this.pendingHandDiscard=null;this.winReason=null;this.drawnThisTurn=0;this.drawEvents=[];this.attackAttempts=new Map();this.freeMoves=new Map();this.botMoves=new Map();this.message('Shuffle complete. Each player draws five.');for(let p of [1,2])for(let i=0;i<5;i++)this.draw(p,false);this.phase='action';this.turn=1;this.startTurn(true)}
  combatUnit(id){return this.units.find(u=>u.id===id)||this.players[1].vault.find(c=>c.id===id)||this.players[2].vault.find(c=>c.id===id)}
  get me(){return this.players[this.active]}
  message(s){this.log.unshift(`[P${this.active}] ${s}`);this.log=this.log.slice(0,90)}
@@ -33,7 +33,24 @@ export class Game {
  selectPerkUnit(id){const p=this.pendingPerk;if(!p)return false;const u=this.units.find(u=>u.id===id&&u.owner===p.player&&!u.ko&&this.canOperate(u));if(!u||!neighbors(u.pos).some(t=>!this.unitAt(t.c,t.r)))return false;p.unitId=id;return true}
  resolvePerkMove(c,r){const p=this.pendingPerk;if(!p||!p.unitId)return false;const u=this.units.find(u=>u.id===p.unitId);if(!u||u.owner!==p.player||!neighbors(u.pos).some(t=>t.c===c&&t.r===r)||this.unitAt(c,r))return false;u.pos={c,r};this.message(`ZAP FACTORY: ${u.name} moves to ${coord(c,r)} for free.`);this.pendingPerk=null;this.checkGate(u);if(!this.winner&&!this.pendingGateClaim&&!this.pendingBacklot)this.finishTurn();else if(this.pendingGateClaim)this.pendingGateClaim.endTurnAfter=true;else if(this.pendingBacklot)this.pendingBacklot.endTurnAfter=true;return true}
  skipPerk(){if(!this.pendingPerk)return false;this.message('Zap Factory movement skipped.');this.pendingPerk=null;this.finishTurn();return true}
- finishTurn(){this.phase='end';this.message(`Player ${this.active} ends their turn with ${this.me.vault.length}/8 bounties.`);if(this.me.vault.length>=8){this.declareWinner(this.active,'Eight bounties secured');return}if(!this.me.deck.length&&!this.me.hand.length&&!this.units.some(u=>u.owner===this.active&&!u.ko)){this.winner=3-this.active;this.message(`Player ${this.active} forfeits: no remaining playable resources.`);return}this.active=3-this.active;this.turn++;this.phase='action';this.startTurn()}
+ finishTurn(){
+  if(this.pendingHandDiscard)return false;
+  if(this.me.hand.length>7){
+   this.phase='end';this.pendingHandDiscard={player:this.active,limit:7};this.selected=null;this.mode='select';
+   this.message(`END PHASE: Player ${this.active} has ${this.me.hand.length} cards. Discard ${this.me.hand.length-7} to reach 7.`);
+   return false;
+  }
+  return this.completeTurn();
+ }
+ discardEndPhaseCard(id){
+  const pending=this.pendingHandDiscard;if(!pending||pending.player!==this.active||this.winner)return false;
+  const hand=this.players[pending.player].hand;const idx=hand.findIndex(c=>c.id===id);if(idx<0)return false;
+  const [card]=hand.splice(idx,1);this.players[pending.player].discard.push(card);
+  this.message(`END PHASE: ${card.name} discarded to Player ${pending.player} Scrap Pit (${hand.length}/7).`);
+  if(hand.length<=pending.limit){this.pendingHandDiscard=null;this.completeTurn()}
+  return true;
+ }
+ completeTurn(){this.phase='end';this.message(`Player ${this.active} ends their turn with ${this.me.vault.length}/8 bounties.`);if(this.me.vault.length>=8){this.declareWinner(this.active,'Eight bounties secured');return}if(!this.me.deck.length&&!this.me.hand.length&&!this.units.some(u=>u.owner===this.active&&!u.ko)){this.winner=3-this.active;this.message(`Player ${this.active} forfeits: no remaining playable resources.`);return}this.active=3-this.active;this.turn++;this.phase='action';this.startTurn()}
 
  // Control is evaluated from CURRENT ownership of the field unit or Backlot card.
  // Capturing a source transfers its control to the captor; original card.owner remains historical.
@@ -50,7 +67,7 @@ export class Game {
  currentOwner(card){for(const p of [1,2])if(this.players[p].vault.some(c=>c.id===card.id))return p;return card.owner;}
  unitAt(c,r){return this.units.find(u=>u.pos.c===c&&u.pos.r===r)}
  selectUnit(id){let u=this.units.find(x=>x.id===id);if(u&&u.owner===this.active&&!u.ko){this.selected={source:'board',id};this.mode='move';this.message(`Selected ${u.name}. Choose a highlighted tile to move or duel.`)}else this.message('Select an active allied unit.')}
- declareWinner(player,reason='Eight bounties secured'){if(this.winner)return;this.winner=player;this.winReason=reason;this.phase='finished';this.pendingGateClaim=null;this.pendingBacklot=null;this.pendingAttack=null;this.pendingDefense=null;this.pendingPerk=null;this.message(`VICTORY! Player ${player} wins — ${reason}.`)}
+ declareWinner(player,reason='Eight bounties secured'){if(this.winner)return;this.winner=player;this.winReason=reason;this.phase='finished';this.pendingGateClaim=null;this.pendingBacklot=null;this.pendingAttack=null;this.pendingDefense=null;this.pendingPerk=null;this.pendingHandDiscard=null;this.message(`VICTORY! Player ${player} wins — ${reason}.`)}
  scoreBounty(player,card,reason){if(this.players[player].vault.length>=8){this.message('Backlot full: cannot score another bounty.');return false}this.players[player].vault.push(card);card.controller=player;this.message(`${reason}: ${card.name} scored for Player ${player} (+${card.bountyValue??1} point).`);if(this.players[player].vault.length>=8)this.declareWinner(player);return true}
  playStance(id){if(this.winner||this.phase!=='action'||this.pendingAttack||this.pendingDefense||this.pendingGateClaim||this.pendingPerk)return false;const card=this.me.hand.find(c=>c.id===id&&c.type==='stance');if(!card)return false;if(this.me.vault.length>=8){this.message('Backlot is full.');return false}this.me.hand=this.me.hand.filter(c=>c.id!==id);this.scoreBounty(this.active,card,'INSTANT BOUNTY');this.selected=null;this.mode='select';return true}
  clearSelection(){if(this.pendingAttack||this.pendingDefense||this.pendingGateClaim||this.pendingPerk)return false;this.selected=null;this.mode='select';return true}

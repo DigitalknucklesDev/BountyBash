@@ -13,3 +13,10 @@ Scraplords V2.8.1 — Animated launch menu. Includes V2.8 source, three new spla
 - Each manual draw costs one action, uses the existing weighted draw, updates the hand/deck counter, and triggers the existing draw animation and session persistence.
 - Opponent deck clicks do not draw. Empty decks, no actions, completed games, and unresolved combat/selection overlays cannot spend a draw action.
 - Deck card backs retain P2's 180-degree orientation. Discard tiles A4/H3 and existing controls are unchanged.
+
+## V2.8.4 — End-phase hand limit
+- Hand size is unlimited during the action phase.
+- On finishing the turn (including after Zap Factory), a hand of 8+ opens a mandatory discard overlay.
+- The active player chooses which cards to discard into their own board Scrap Pit until exactly 7 remain; only then does the turn advance.
+- NPCs automatically select and discard excess cards; the phase and pending choice persist across refreshes using the existing session storage.
+- No action cost for end-phase discards. Existing voluntary discard remains unchanged.
