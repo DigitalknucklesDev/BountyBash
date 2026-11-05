@@ -169,3 +169,15 @@ body{padding-bottom:108px}
 .scrap-audio-controls label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:700}
 .scrap-audio-controls input{width:65%;accent-color:#f9aa42}
 .scrap-audio-controls small{opacity:.7;line-height:1.4}
+
+/* V2.8.7 — temporary mascot reactions; never intercepts card dock interactions */
+#scrap-mascot-stage{position:fixed;inset:0;z-index:850;pointer-events:none;overflow:hidden}
+.scrap-mascot{position:absolute;bottom:clamp(84px,15vh,155px);width:clamp(120px,19vw,210px);animation:mascot-pop .28s cubic-bezier(.2,1.5,.4,1) both;filter:drop-shadow(0 5px 12px #0009)}
+.scrap-mascot-p1{left:clamp(8px,2vw,30px)}.scrap-mascot-p2{right:clamp(8px,2vw,30px);transform-origin:bottom right}
+.scrap-mascot img{width:100%;max-height:230px;object-fit:contain;object-position:bottom;display:block}
+.scrap-mascot-quip{position:absolute;top:5%;left:48%;max-width:155px;min-width:100px;background:#fff4d4;color:#171316;border:3px solid #141414;border-radius:16px 16px 16px 2px;padding:7px 9px;font:900 clamp(10px,1.3vw,14px)/1.2 system-ui,sans-serif;text-align:center;box-shadow:3px 4px 0 #141414;transform:rotate(-3deg)}
+.scrap-mascot-p2 .scrap-mascot-quip{left:auto;right:48%;transform:rotate(3deg)}
+.scrap-mascot-player{position:absolute;bottom:0;left:3px;background:#141414;color:#fff;font:800 12px system-ui;padding:3px 8px;border-radius:8px}
+@keyframes mascot-pop{from{opacity:0;translate:0 35px;scale:.84}to{opacity:1;translate:0 0;scale:1}}
+@media(max-width:650px){.scrap-mascot{bottom:105px;width:125px}.scrap-mascot img{max-height:160px}.scrap-mascot-quip{min-width:80px;max-width:108px;font-size:10px;padding:5px 6px}}
+@media(prefers-reduced-motion:reduce){.scrap-mascot{animation:none}}
