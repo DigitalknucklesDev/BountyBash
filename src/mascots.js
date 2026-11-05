@@ -4,7 +4,7 @@ export class MascotDirector {
  constructor({mascotCount=3,cooldown=12000,duration=3300}={}) {
   this.mascotCount=mascotCount; this.cooldown=cooldown; this.duration=duration;
   this.assignments={}; this.lastLog=null; this.lastWinner=null; this.lastShown=0;
-  this.lastLine={}; this.timer=null; this.root=null; this.session=null;
+  this.lastLine={}; this.timer=null; this.cleanupTimer=null; this.root=null; this.session=null; this.resizeHandler=null;
  }
  begin(sessionId,{resume=false}={}) {
   if(resume&&this.session===sessionId)return;
@@ -64,7 +64,18 @@ export class MascotDirector {
  ensureRoot(){
   if(this.root?.isConnected)return this.root;
   const root=document.createElement('div');root.id='scrap-mascot-stage';root.setAttribute('aria-live','off');
-  document.body.append(root);this.root=root;return root;
+  document.body.append(root);this.root=root;
+  this.resizeHandler=()=>this.positionAboveDock();
+  window.addEventListener('resize',this.resizeHandler,{passive:true});
+  return root;
+ }
+ positionAboveDock(){
+  if(!this.root)return;
+  const dock=document.querySelector('.hand-area');
+  // The dock may expand/collapse; position against its actual top edge.
+  const top=dock?.getBoundingClientRect().top ?? window.innerHeight-112;
+  const offset=Math.max(0,window.innerHeight-top);
+  this.root.style.setProperty('--mascot-dock-bottom',`${Math.round(offset)}px`);
  }
  show(player,kind,force=false){
   if(![1,2].includes(player)||!this.lines[kind])return;
@@ -73,15 +84,23 @@ export class MascotDirector {
   const lines=this.lines[kind],prev=this.lastLine[kind];
   const options=lines.filter(x=>x!==prev);
   const line=options[Math.floor(Math.random()*options.length)]||lines[0];this.lastLine[kind]=line;
-  const root=this.ensureRoot();root.replaceChildren();
-  const el=document.createElement('div');el.className=`scrap-mascot scrap-mascot-p${player}`;
+  const root=this.ensureRoot();
+  clearTimeout(this.timer);clearTimeout(this.cleanupTimer);
+  root.replaceChildren();this.positionAboveDock();
+  const el=document.createElement('div');el.className=`scrap-mascot scrap-mascot-p${player} mascot-enter`;
   const pic=document.createElement('img');pic.src=`assets/mascots/mascot${this.assignments[player]||1}.png`;pic.alt=`Player ${player} mascot`;
   pic.onerror=()=>{pic.onerror=null;pic.src='assets/mascots/mascot1.png'};
   const speech=document.createElement('div');speech.className='scrap-mascot-quip';speech.textContent=line;
   const name=document.createElement('span');name.className='scrap-mascot-player';name.textContent=`P${player}`;
   el.append(pic,speech,name);root.append(el);
-  clearTimeout(this.timer);this.timer=setTimeout(()=>this.hide(),this.duration);
+  // Entrance, short dialogue hold, then retract below the dock edge.
+  this.timer=setTimeout(()=>this.hide(),this.duration);
  }
- hide(){clearTimeout(this.timer);if(this.root)this.root.replaceChildren()}
+ hide(){
+  clearTimeout(this.timer);clearTimeout(this.cleanupTimer);
+  const el=this.root?.querySelector('.scrap-mascot');if(!el)return;
+  el.classList.remove('mascot-enter');el.classList.add('mascot-exit');
+  this.cleanupTimer=setTimeout(()=>{if(el.isConnected)el.remove()},520);
+ }
 }
 export const mascots=new MascotDirector();
