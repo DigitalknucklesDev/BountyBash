@@ -2,7 +2,7 @@
 
 /* V2.9.3 — transparent arena, organic scrap piles, Bounty Bash-style hand fan */
 body{padding-bottom:122px}
-.arena{background:linear-gradient(#0002,#0003),url('../assets/board.png') center/cover;overflow:visible}
+.arena{background:linear-gradient(#0002,#0003),url('../assets/boardPit.png') center/cover;overflow:visible}
 .pit-board{gap:5px}
 .pit-tile,.pit-tile.field,.pit-tile.deck,.pit-tile.discard{background:transparent;border-color:transparent;box-shadow:none;border-radius:0;overflow:visible}
 .pit-tile.field:not(.occupied):not(.legal){opacity:1}
